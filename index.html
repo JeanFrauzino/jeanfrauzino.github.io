@@ -3,191 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jean Frauzino | Desenvolvedor & TI</title>
+    <title>Jean Frauzino | Portfolio Tech</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary: #1a1a2e;
-            --secondary: #16213e;
-            --accent: #3498db;
-            --text-light: #e0e0e0;
-            --card-bg: #ffffff;
+            --bg: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.05);
+            --primary: #00d2ff;
+            --secondary: #3a7bd5;
+            --accent: #6366f1;
+            --text: #f8fafc;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; transition: all 0.3s ease; }
 
         body { 
-            font-family: 'Inter', sans-serif; 
+            font-family: 'Poppins', sans-serif; 
             margin: 0; 
-            background-color: #f4f7f6; 
-            color: #333; 
-            line-height: 1.6; 
+            background: var(--bg); 
+            color: var(--text);
+            overflow-x: hidden;
         }
 
-        /* Header e Perfil */
-        header { 
-            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
-            color: white; 
-            padding: 4rem 1rem; 
-            text-align: center; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        /* Fundo Animado */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+            z-index: -1;
+        }
+
+        header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, rgba(0,210,255,0.1), rgba(99,102,241,0.1));
+            text-align: center;
+            padding: 20px;
         }
 
         .profile-img { 
-            width: 140px; 
-            height: 140px; 
+            width: 160px; height: 160px; 
             border-radius: 50%; 
-            border: 4px solid var(--accent); 
-            margin-bottom: 1.5rem;
-            background: #fff;
+            border: 4px solid var(--primary);
+            box-shadow: 0 0 20px var(--primary);
+            margin-bottom: 20px;
         }
 
-        .social-links a { 
-            font-size: 1.8rem; 
-            margin: 0 12px; 
-            color: white; 
-            text-decoration: none; 
-            transition: 0.3s;
+        h1 { font-size: 3.5rem; margin: 0; background: linear-gradient(to right, #00d2ff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .typewriter { font-size: 1.2rem; color: #94a3b8; margin-top: 10px; border-right: 2px solid var(--primary); width: fit-content; overflow: hidden; white-space: nowrap; animation: typing 3.5s steps(40, end), blink .75s step-end infinite; }
+
+        @keyframes typing { from { width: 0 } to { width: 100% } }
+        @keyframes blink { from, to { border-color: transparent } 50% { border-color: var(--primary); } }
+
+        .container { max-width: 1100px; margin: auto; padding: 4rem 2rem; }
+
+        h2 { font-size: 2.2rem; margin-bottom: 3rem; text-align: center; color: var(--primary); text-transform: uppercase; letter-spacing: 2px; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            position: relative;
+            overflow: hidden;
         }
 
-        .social-links a:hover { color: var(--accent); }
-
-        /* Conteúdo */
-        .container { max-width: 900px; margin: auto; padding: 2rem; }
-
-        section { margin-bottom: 4rem; }
-
-        h2 { 
-            font-size: 1.8rem; 
-            border-bottom: 3px solid var(--accent); 
-            display: inline-block; 
-            margin-bottom: 2rem; 
-            color: var(--primary);
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(255,255,255,0.08);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* Cards de Projetos */
-        .project-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 1.5rem; 
-        }
+        .card i { font-size: 2.5rem; color: var(--primary); margin-bottom: 1.5rem; }
 
-        .project-card { 
-            background: var(--card-bg); 
-            padding: 1.8rem; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
-            transition: transform 0.3s, box-shadow 0.3s;
-            border-left: 5px solid var(--accent);
-        }
-
-        .project-card:hover { 
-            transform: translateY(-8px); 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1); 
-        }
-
-        .project-card h3 { margin-top: 0; color: var(--secondary); display: flex; align-items: center; gap: 10px; }
-
-        .badge { 
-            background: #e1f0fa; 
-            color: var(--accent); 
-            padding: 4px 12px; 
-            border-radius: 20px; 
-            font-size: 0.75rem; 
-            font-weight: 600;
-            margin-right: 5px;
+        .badge {
             display: inline-block;
-            margin-top: 10px;
+            padding: 5px 12px;
+            background: rgba(99,102,241,0.2);
+            color: #a5b4fc;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            margin: 5px 5px 0 0;
+            border: 1px solid rgba(99,102,241,0.3);
         }
 
-        footer { text-align: center; padding: 2rem; background: var(--primary); color: white; margin-top: 2rem; }
+        .social-links { margin-top: 30px; }
+        .social-links a { color: white; font-size: 1.8rem; margin: 0 15px; }
+        .social-links a:hover { color: var(--primary); transform: scale(1.2); }
+
+        .stats-box {
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        footer { padding: 3rem; text-align: center; opacity: 0.6; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <header>
-    <img src="https://github.com/Jean.png" alt="Foto de Perfil" class="profile-img">
+    <img src="https://github.com/JeanFrauzino.png" alt="Jean Frauzino" class="profile-img">
     <h1>Jean Frauzino</h1>
-    <p>TI no Cartório do 1º Ofício | Desenvolvedor Flutter & Fullstack</p>
+    <div class="typewriter">Desenvolvedor Flutter | TI Cartório 1º Ofício | Tech Enthusiast</div>
     <div class="social-links">
-        <a href="https://github.com/JeanFrauzino" title="GitHub"><i class="fab fa-github"></i></a>
-        <a href="https://www.linkedin.com/in/jean-frauzino-907707293/" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
-        <a href="https://instagram.com/jacapromo" title="JacaPromo"><i class="fab fa-instagram"></i></a>
+        <a href="https://github.com/JeanFrauzino"><i class="fab fa-github"></i></a>
+        <a href="#"><i class="fab fa-linkedin"></i></a>
+        <a href="https://instagram.com/jacapromo"><i class="fab fa-instagram"></i></a>
     </div>
 </header>
 
 <div class="container">
     <section id="sobre">
-        <h2>Sobre Mim</h2>
-        <p>
-            Profissional de TI atuando no <strong>Cartório do Primeiro Ofício de Morrinhos-GO</strong>. 
-            Tenho foco em automação de processos, infraestrutura e desenvolvimento de soluções modernas. 
-            Minha expertise envolve desde a lógica robusta em <strong>Java</strong> e <strong>Rust</strong> 
-            até a criação de interfaces responsivas com <strong>Flutter</strong>. 
-            Além disso, exploro o mercado digital através de estratégias de marketing e canais automatizados.
-        </p>
+        <h2>Minha Jornada</h2>
+        <div class="card" style="text-align: center;">
+            <p>
+                Atualmente liderando iniciativas de TI no <strong>Cartório do Primeiro Ofício de Morrinhos-GO</strong>. 
+                Especialista em construir pontes entre o direito e a tecnologia, desenvolvendo o <strong>SIAJ</strong> 
+                com <strong>Rust</strong> e <strong>Flutter</strong> para máxima performance. 
+                Movido por dados, aplico conceitos de <strong>estatística avançada</strong> para otimizar processos.
+            </p>
+        </div>
     </section>
 
     <section id="projetos">
-        <h2>Meus Projetos</h2>
-        <div class="project-grid">
+        <h2>Projetos de Impacto</h2>
+        <div class="grid">
             
-            <div class="project-card">
-                <h3><i class="fas fa-balance-scale"></i> SIAJ</h3>
-                <p>Sistema de Inteligência e Automação Jurídica. Um SaaS que utiliza Rust para processamento de alto desempenho de documentos e PDFs.</p>
-                <div class="tags">
-                    <span class="badge">Flutter</span> <span class="badge">Rust</span> <span class="badge">SaaS</span>
-                </div>
+            <div class="card">
+                <i class="fas fa-microchip"></i>
+                <h3>SIAJ SaaS</h3>
+                <p>Automação jurídica inteligente. Backend em Rust para processamento ultra-rápido de documentos.</p>
+                <span class="badge">Flutter</span> <span class="badge">Rust</span> <span class="badge">SaaS</span>
             </div>
 
-            <div class="project-card">
-                <h3><i class="fas fa-trophy"></i> Show do Milhão</h3>
-                <p>Jogo interativo estilo quiz desenvolvido para eventos corporativos, com foco em experiência do usuário e lógica de jogo.</p>
-                <div class="tags">
-                    <span class="badge">JavaScript</span> <span class="badge">CSS3</span> <span class="badge">Frontend</span>
-                </div>
+            <div class="card">
+                <i class="fab fa-whatsapp"></i>
+                <h3>WhatsApp Reminders</h3>
+                <p>Sistema de notificações automatizadas integrado para gestão de prazos e tarefas.</p>
+                <span class="badge">API</span> <span class="badge">Dart</span> <span class="badge">Productivity</span>
             </div>
 
-            <div class="project-card">
-                <h3><i class="fab fa-whatsapp"></i> Reminder App</h3>
-                <p>Aplicação de lembretes com integração via WhatsApp para notificações automáticas de tarefas e prazos.</p>
-                <div class="tags">
-                    <span class="badge">Flutter</span> <span class="badge">WhatsApp API</span>
-                </div>
+            <div class="card">
+                <i class="fas fa-brain"></i>
+                <h3>Java Algorithms</h3>
+                <p>Soluções complexas em estruturas de dados: Pilhas, Deques e Recursão.</p>
+                <span class="badge">Java</span> <span class="badge">Computer Science</span>
             </div>
 
-            <div class="project-card">
-                <h3><i class="fas fa-database"></i> Estruturas Java</h3>
-                <p>Implementação de estruturas de dados complexas como Pilhas, Filas e Deques para otimização de algoritmos.</p>
-                <div class="tags">
-                    <span class="badge">Java</span> <span class="badge">Backend</span>
-                </div>
+            <div class="card">
+                <i class="fas fa-chart-line"></i>
+                <h3>JacaPromo</h3>
+                <p>Estratégia de Marketing de Afiliados com foco em conversão e curadoria de ofertas.</p>
+                <span class="badge">Instagram</span> <span class="badge">Marketing</span>
             </div>
 
-            <div class="project-card">
-                <h3><i class="fas fa-shopping-cart"></i> JacaPromo</h3>
-                <p>Página de promoções e marketing de afiliados, unindo curadoria de produtos e automação de redes sociais.</p>
-                <div class="tags">
-                    <span class="badge">Marketing</span> <span class="badge">Instagram</span>
-                </div>
+            <div class="card">
+                <i class="fas fa-play-circle"></i>
+                <h3>Dark Channels</h3>
+                <p>Estratégias de conteúdo para YouTube focadas em nichos escaláveis sem exposição facial.</p>
+                <span class="badge">YouTube</span> <span class="badge">AI</span>
             </div>
 
-            <div class="project-card">
-                <h3><i class="fab fa-youtube"></i> Dark Channels</h3>
-                <p>Criação e gestão de canais no YouTube sem exibição de rosto, focados em nichos específicos e automação de conteúdo.</p>
-                <div class="tags">
-                    <span class="badge">YouTube</span> <span class="badge">Estratégia</span>
-                </div>
+            <div class="card">
+                <i class="fas fa-gamepad"></i>
+                <h3>Show do Milhão</h3>
+                <p>Game engine educacional e corporativa desenvolvida totalmente em JavaScript puro.</p>
+                <span class="badge">JS</span> <span class="badge">CSS</span> <span class="badge">Web Dev</span>
             </div>
 
         </div>
     </section>
+
+    <section class="stats-box">
+        <h3>Interessado em colaboração?</h3>
+        <p>Estou sempre em busca de novos desafios em Flutter, Rust e Automação.</p>
+        <p><strong>📍 Morrinhos, Goiás</strong></p>
+    </section>
 </div>
 
 <footer>
-    <p>&copy; 2026 - Desenvolvido por oFrauzino</p>
+    &copy; 2026 - Desenvolvido por Jean Frauzino. Built with passion & code.
 </footer>
 
 </body>
