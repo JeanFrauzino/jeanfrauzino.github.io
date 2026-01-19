@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jean Frauzino | Desenvolvedor & TI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #1a1a2e;
+            --secondary: #16213e;
+            --accent: #3498db;
+            --text-light: #e0e0e0;
+            --card-bg: #ffffff;
+        }
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            background-color: #f4f7f6; 
+            color: #333; 
+            line-height: 1.6; 
+        }
+
+        /* Header e Perfil */
+        header { 
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            color: white; 
+            padding: 4rem 1rem; 
+            text-align: center; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .profile-img { 
+            width: 140px; 
+            height: 140px; 
+            border-radius: 50%; 
+            border: 4px solid var(--accent); 
+            margin-bottom: 1.5rem;
+            background: #fff;
+        }
+
+        .social-links a { 
+            font-size: 1.8rem; 
+            margin: 0 12px; 
+            color: white; 
+            text-decoration: none; 
+            transition: 0.3s;
+        }
+
+        .social-links a:hover { color: var(--accent); }
+
+        /* Conteúdo */
+        .container { max-width: 900px; margin: auto; padding: 2rem; }
+
+        section { margin-bottom: 4rem; }
+
+        h2 { 
+            font-size: 1.8rem; 
+            border-bottom: 3px solid var(--accent); 
+            display: inline-block; 
+            margin-bottom: 2rem; 
+            color: var(--primary);
+        }
+
+        /* Cards de Projetos */
+        .project-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 1.5rem; 
+        }
+
+        .project-card { 
+            background: var(--card-bg); 
+            padding: 1.8rem; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-left: 5px solid var(--accent);
+        }
+
+        .project-card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); 
+        }
+
+        .project-card h3 { margin-top: 0; color: var(--secondary); display: flex; align-items: center; gap: 10px; }
+
+        .badge { 
+            background: #e1f0fa; 
+            color: var(--accent); 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-size: 0.75rem; 
+            font-weight: 600;
+            margin-right: 5px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        footer { text-align: center; padding: 2rem; background: var(--primary); color: white; margin-top: 2rem; }
+    </style>
+</head>
+<body>
+
+<header>
+    <img src="https://github.com/Jean.png" alt="Foto de Perfil" class="profile-img">
+    <h1>Jean Frauzino</h1>
+    <p>TI no Cartório do 1º Ofício | Desenvolvedor Flutter & Fullstack</p>
+    <div class="social-links">
+        <a href="https://github.com/JeanFrauzino" title="GitHub"><i class="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/jean-frauzino-907707293/" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+        <a href="https://instagram.com/jacapromo" title="JacaPromo"><i class="fab fa-instagram"></i></a>
+    </div>
+</header>
+
+<div class="container">
+    <section id="sobre">
+        <h2>Sobre Mim</h2>
+        <p>
+            Profissional de TI atuando no <strong>Cartório do Primeiro Ofício de Morrinhos-GO</strong>. 
+            Tenho foco em automação de processos, infraestrutura e desenvolvimento de soluções modernas. 
+            Minha expertise envolve desde a lógica robusta em <strong>Java</strong> e <strong>Rust</strong> 
+            até a criação de interfaces responsivas com <strong>Flutter</strong>. 
+            Além disso, exploro o mercado digital através de estratégias de marketing e canais automatizados.
+        </p>
+    </section>
+
+    <section id="projetos">
+        <h2>Meus Projetos</h2>
+        <div class="project-grid">
+            
+            <div class="project-card">
+                <h3><i class="fas fa-balance-scale"></i> SIAJ</h3>
+                <p>Sistema de Inteligência e Automação Jurídica. Um SaaS que utiliza Rust para processamento de alto desempenho de documentos e PDFs.</p>
+                <div class="tags">
+                    <span class="badge">Flutter</span> <span class="badge">Rust</span> <span class="badge">SaaS</span>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <h3><i class="fas fa-trophy"></i> Show do Milhão</h3>
+                <p>Jogo interativo estilo quiz desenvolvido para eventos corporativos, com foco em experiência do usuário e lógica de jogo.</p>
+                <div class="tags">
+                    <span class="badge">JavaScript</span> <span class="badge">CSS3</span> <span class="badge">Frontend</span>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <h3><i class="fab fa-whatsapp"></i> Reminder App</h3>
+                <p>Aplicação de lembretes com integração via WhatsApp para notificações automáticas de tarefas e prazos.</p>
+                <div class="tags">
+                    <span class="badge">Flutter</span> <span class="badge">WhatsApp API</span>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <h3><i class="fas fa-database"></i> Estruturas Java</h3>
+                <p>Implementação de estruturas de dados complexas como Pilhas, Filas e Deques para otimização de algoritmos.</p>
+                <div class="tags">
+                    <span class="badge">Java</span> <span class="badge">Backend</span>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <h3><i class="fas fa-shopping-cart"></i> JacaPromo</h3>
+                <p>Página de promoções e marketing de afiliados, unindo curadoria de produtos e automação de redes sociais.</p>
+                <div class="tags">
+                    <span class="badge">Marketing</span> <span class="badge">Instagram</span>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <h3><i class="fab fa-youtube"></i> Dark Channels</h3>
+                <p>Criação e gestão de canais no YouTube sem exibição de rosto, focados em nichos específicos e automação de conteúdo.</p>
+                <div class="tags">
+                    <span class="badge">YouTube</span> <span class="badge">Estratégia</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+</div>
+
+<footer>
+    <p>&copy; 2026 - Desenvolvido por oFrauzino</p>
+</footer>
+
+</body>
+</html>
