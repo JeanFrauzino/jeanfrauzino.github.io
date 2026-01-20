@@ -3,262 +3,381 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jean Frauzino | Portfolio Tech</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>Jean Frauzino | Portfolio VI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fira+Code&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --bg: #0f172a;
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --primary: #00d2ff;
-            --secondary: #3a7bd5;
-            --accent: #6366f1;
-            --text: #f8fafc;
+            --bg-color: #050505;
+            --text-color: #ffffff;
+            --brand-blue: #00f2ff;
+            --brand-pink: #ff0077;
         }
 
-        * { box-sizing: border-box; transition: all 0.3s ease; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
 
-        body { 
-            font-family: 'Poppins', sans-serif; 
-            margin: 0; 
-            background: var(--bg); 
-            color: var(--text);
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-        }
-
-        /* Fundo Animado */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
-            z-index: -1;
-        }
-
-        header {
             min-height: 100vh;
+        }
+
+        /* Fundo e Efeitos Globais */
+        #code-wall { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background: #020202; }
+        .noise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('https://media.giphy.com/media/oEI9uBYSzLpBK/giphy.gif'); opacity: 0.03; pointer-events: none; z-index: 1; }
+        
+        header, .container, footer { position: relative; z-index: 2; }
+
+        /* HEADER */
+        header {
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(180deg, rgba(0,210,255,0.05) 0%, rgba(15,23,42,0) 100%);
             text-align: center;
-            padding: 20px;
+            pointer-events: none; 
         }
 
-        .profile-img { 
-            width: 170px; height: 170px; 
-            border-radius: 50%; 
-            border: 4px solid var(--primary);
-            box-shadow: 0 0 25px rgba(0, 210, 255, 0.4);
-            margin-bottom: 25px;
-            object-fit: cover;
-        }
+        header a { pointer-events: auto; }
 
-        h1 { 
-            font-size: 3.5rem; 
-            margin: 0; 
-            background: linear-gradient(to right, #00d2ff, #ffffff); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-            font-weight: 700;
-        }
-
-        .typewriter { 
-            font-size: 1.2rem; 
-            color: #94a3b8; 
-            margin-top: 10px; 
-            border-right: 2px solid var(--primary); 
-            width: fit-content; 
-            overflow: hidden; 
-            white-space: nowrap; 
-            animation: typing 3.5s steps(40, end), blink .75s step-end infinite; 
-        }
-
-        @keyframes typing { from { width: 0 } to { width: 100% } }
-        @keyframes blink { from, to { border-color: transparent } 50% { border-color: var(--primary); } }
-
-        .container { max-width: 1150px; margin: auto; padding: 4rem 2rem; }
-
-        h2 { 
-            font-size: 2.2rem; 
-            margin-bottom: 3rem; 
-            text-align: center; 
-            color: var(--primary); 
-            text-transform: uppercase; 
-            letter-spacing: 3px; 
+        /* TÍTULO GLITCH (Mantido) */
+        .hero-title {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: clamp(4rem, 12vw, 9rem);
+            line-height: 0.85;
+            color: white;
+            letter-spacing: -4px;
+            margin-bottom: 20px;
             position: relative;
         }
-        
-        h2::after {
-            content: '';
-            display: block;
-            width: 60px;
-            height: 3px;
-            background: var(--accent);
-            margin: 10px auto 0;
-            border-radius: 2px;
+
+        .hero-title::before, .hero-title::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #020202;
         }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
+        .hero-title::before {
+            left: 2px; text-shadow: -2px 0 var(--brand-pink);
+            clip-path: inset(44% 0 61% 0);
+            animation: glitch-anim-1 2.5s infinite linear alternate-reverse;
+        }
 
-        .card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.08);
-            padding: 2.5rem;
-            border-radius: 24px;
-            position: relative;
-            overflow: hidden;
+        .hero-title::after {
+            left: -2px; text-shadow: -2px 0 var(--brand-blue);
+            clip-path: inset(50% 0 30% 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim-1 {
+            0% { clip-path: inset(20% 0 80% 0); } 20% { clip-path: inset(60% 0 10% 0); }
+            40% { clip-path: inset(40% 0 50% 0); } 60% { clip-path: inset(80% 0 5% 0); }
+            80% { clip-path: inset(10% 0 70% 0); } 100% { clip-path: inset(30% 0 20% 0); }
+        }
+        @keyframes glitch-anim-2 {
+            0% { clip-path: inset(10% 0 60% 0); } 20% { clip-path: inset(30% 0 10% 0); }
+            40% { clip-path: inset(80% 0 5% 0); } 60% { clip-path: inset(10% 0 80% 0); }
+            80% { clip-path: inset(50% 0 30% 0); } 100% { clip-path: inset(20% 0 60% 0); }
+        }
+
+        .typewriter {
+            display: inline-block; overflow: hidden; border-right: 3px solid var(--brand-blue);
+            white-space: nowrap; margin: 0 auto; letter-spacing: 4px; font-size: 1.2rem;
+            text-transform: uppercase; color: var(--brand-blue); font-weight: 700;
+            background: rgba(0,0,0,0.6); padding: 5px 15px; max-width: 0;
+            animation: typing 3.5s steps(40, end) forwards, blink-caret .75s step-end infinite;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes typing { from { max-width: 0 } to { max-width: 100% } }
+        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: var(--brand-blue); } }
+
+        .scroll-indicator {
+            position: absolute; bottom: 30px; font-size: 2rem; color: rgba(255,255,255,0.3);
+            animation: bounce 2s infinite;
+        }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-10px);} 60% {transform: translateY(-5px);} }
+
+        /* --- NOVO LAYOUT VERTICAL E GIGANTE --- */
+        .container {
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 2rem 10rem 2rem;
+            perspective: 1500px; /* Perspectiva mais profunda */
+        }
+
+        .gallery {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            gap: 150px; /* Espaço enorme entre os projetos para forçar o scroll */
         }
 
-        .card:hover {
-            transform: translateY(-10px);
-            background: rgba(255,255,255,0.06);
-            border-color: rgba(0, 210, 255, 0.3);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-        }
-
-        .card i { 
-            font-size: 2.5rem; 
-            color: var(--primary); 
-            margin-bottom: 1.5rem; 
-            background: rgba(0, 210, 255, 0.1);
-            padding: 15px;
-            border-radius: 12px;
-        }
-
-        .card h3 { margin: 0 0 10px 0; font-size: 1.4rem; color: white; }
-        .card p { color: #cbd5e1; font-size: 0.95rem; line-height: 1.6; margin-bottom: 20px; flex-grow: 1; }
-
-        .badge {
-            display: inline-block;
-            padding: 6px 14px;
-            background: rgba(99,102,241,0.15);
-            color: #818cf8;
-            border-radius: 50px;
-            font-size: 0.75rem;
-            margin: 5px 5px 0 0;
-            border: 1px solid rgba(99,102,241,0.2);
-            font-weight: 500;
-        }
-
-        .social-links { margin-top: 30px; }
-        .social-links a { color: #94a3b8; font-size: 1.8rem; margin: 0 15px; transition: 0.3s; }
-        .social-links a:hover { color: var(--primary); transform: scale(1.2); }
-
-        .stats-box {
-            background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(58,123,213,0.2));
-            padding: 3rem;
-            border-radius: 24px;
-            text-align: center;
-            margin-top: 6rem;
+        /* CARD GIGANTE */
+        .project-card {
+            display: block; /* Para funcionar o link */
+            position: relative;
+            width: 100%;
+            height: 70vh; /* Ocupa 70% da altura da tela */
+            text-decoration: none; /* Remove sublinhado do link */
+            overflow: hidden;
+            border-radius: 8px;
             border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(10, 10, 15, 0.9);
+            
+            /* ESTADO INICIAL (Escondido e Longe) */
+            opacity: 0;
+            transform: scale(0.8) translateY(100px) rotateX(20deg);
+            transition: all 1s cubic-bezier(0.165, 0.84, 0.44, 1);
+            box-shadow: 0 50px 100px -20px rgba(0,0,0,0.8);
         }
 
-        footer { padding: 4rem; text-align: center; opacity: 0.5; font-size: 0.85rem; }
+        /* ESTADO VISÍVEL (Quando entra na tela) */
+        .project-card.visible {
+            opacity: 1;
+            transform: scale(1) translateY(0) rotateX(0);
+        }
+
+        /* HOVER EFFECT */
+        .project-card:hover {
+            border-color: var(--brand-blue);
+            box-shadow: 0 0 50px rgba(0, 242, 255, 0.2);
+            transform: scale(1.02) translateY(-10px) !important;
+        }
+
+        /* Imagem de Fundo */
+        .project-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            transition: transform 1.5s ease;
+            filter: grayscale(100%) brightness(0.4);
+        }
+
+        .project-card:hover .project-bg {
+            filter: grayscale(0%) brightness(0.8);
+            transform: scale(1.1); /* Zoom suave */
+        }
+
+        /* Conteúdo do Card */
+        .project-content {
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 100%;
+            padding: 4rem; /* Padding maior */
+            background: linear-gradient(to top, #000 0%, transparent 100%);
+            z-index: 2;
+        }
+
+        .project-number {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 8rem; /* Número gigante no fundo */
+            color: rgba(255,255,255,0.03);
+            position: absolute;
+            top: -60px; right: 40px;
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        .project-title {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 4rem; /* Título bem maior */
+            text-transform: uppercase;
+            color: white;
+            margin-bottom: 1rem;
+            transform: translateY(20px);
+            transition: transform 0.5s;
+        }
+
+        .project-card:hover .project-title {
+            color: var(--brand-blue);
+            transform: translateY(0);
+            text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+        }
+
+        .project-desc {
+            font-size: 1.2rem;
+            color: #ccc;
+            max-width: 600px;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: transparent;
+            border: 2px solid var(--brand-blue);
+            color: var(--brand-blue);
+            font-family: 'Fira Code', monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: 0.3s;
+        }
+
+        .project-card:hover .cta-button {
+            background: var(--brand-blue);
+            color: black;
+            box-shadow: 0 0 20px var(--brand-blue);
+        }
+
+        /* Responsivo Mobile */
+        @media (max-width: 768px) {
+            .project-card { height: 60vh; }
+            .project-title { font-size: 2.5rem; }
+            .project-content { padding: 2rem; }
+            .gallery { gap: 80px; }
+        }
+
+        footer { text-align: center; padding: 3rem; font-size: 0.8rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 2px; }
     </style>
 </head>
 <body>
 
-<header>
-    <img src="https://github.com/JeanFrauzino.png" alt="Jean Frauzino" class="profile-img">
-    <h1>Jean Frauzino</h1>
-    <div class="typewriter">Desenvolvedor Electron & Flutter | TI Cartório 1º Ofício</div>
-    <div class="social-links">
-        <a href="https://github.com/JeanFrauzino" target="_blank"><i class="fab fa-github"></i></a>
-        <a href="#" target="_blank"><i class="fab fa-linkedin"></i></a>
-        <a href="https://instagram.com/jacapromo" target="_blank"><i class="fab fa-instagram"></i></a>
-    </div>
-</header>
+    <canvas id="code-wall"></canvas>
+    <div class="noise-overlay"></div>
 
-<div class="container">
-    <section id="sobre">
-        <h2>Minha Jornada</h2>
-        <div class="card" style="width: 100%; align-items: center; text-align: center;">
-            <p style="font-size: 1.1rem; max-width: 800px;">
-                Profissional de TI à frente da tecnologia no <strong>Cartório do Primeiro Ofício de Morrinhos-GO</strong>. 
-                Meu foco é criar soluções práticas e robustas que resolvem problemas reais. 
-                Combino o poder do desenvolvimento Desktop com estratégias digitais modernas.
-            </p>
+    <header>
+        <div class="hero-title" data-text="JEAN FRAUZINO">JEAN<br>FRAUZINO</div>
+        <div class="typewriter">Code & Automation</div>
+        
+        <div style="margin-top: 40px; font-size: 1.5rem; pointer-events: auto; z-index: 10;">
+            <a href="https://github.com/JeanFrauzino" style="color:white; margin:0 15px; text-decoration:none;"><i class="fab fa-github"></i></a>
+            <a href="#" style="color:white; margin:0 15px; text-decoration:none;"><i class="fab fa-linkedin"></i></a>
         </div>
-    </section>
+        <div class="scroll-indicator"><i class="fas fa-chevron-down"></i></div>
+    </header>
 
-    <section id="projetos">
-        <h2>Projetos em Destaque</h2>
-        <div class="grid">
+    <div class="container">
+        <div class="gallery">
             
-            <div class="card">
-                <i class="fas fa-desktop"></i>
-                <h3>SIAJ Desktop</h3>
-                <p>Aplicação desktop finalizada para automação jurídica. Desenvolvida em <strong>Electron</strong> para garantir alta produtividade e integração nativa no ambiente notarial.</p>
-                <div>
-                    <span class="badge">Electron</span> <span class="badge">JavaScript</span> <span class="badge">Desktop App</span>
+            <a href="siaj.html" class="project-card">
+                <div class="project-bg" style="background-image: url('https://images.unsplash.com/photo-1555421689-d68471e189f2?q=80&w=1600&auto=format&fit=crop');"></div>
+                <div class="project-content">
+                    <div class="project-number">01</div>
+                    <h3 class="project-title">SIAJ</h3>
+                    <p class="project-desc">Sistema de Inteligência e Automação Jurídica. O poder do Electron no desktop para revolucionar a produtividade notarial.</p>
+                    <div class="cta-button">Ver Projeto <i class="fas fa-arrow-right"></i></div>
                 </div>
-            </div>
+            </a>
 
-            <div class="card">
-                <i class="fab fa-whatsapp"></i>
-                <h3>WhatsApp Reminders</h3>
-                <p>Sistema de notificações automatizadas integrado para gestão de prazos e tarefas importantes.</p>
-                <div>
-                    <span class="badge">API</span> <span class="badge">Automação</span>
+            <a href="alembrau.html" class="project-card">
+                <div class="project-bg" style="background-image: url('https://images.unsplash.com/photo-1611746872915-64382b5c76da?q=80&w=1600&auto=format&fit=crop');"></div>
+                <div class="project-content">
+                    <div class="project-number">02</div>
+                    <h3 class="project-title">ALEMBRAEU</h3>
+                    <p class="project-desc">Assistente pessoal de produtividade. Integração direta com API do WhatsApp para notificações inteligentes.</p>
+                    <div class="cta-button">Ver Projeto <i class="fas fa-arrow-right"></i></div>
                 </div>
-            </div>
+            </a>
 
-            <div class="card">
-                <i class="fas fa-code-branch"></i>
-                <h3>Java Algorithms</h3>
-                <p>Biblioteca de soluções em estruturas de dados complexas: Pilhas, Deques e Recursão.</p>
-                <div>
-                    <span class="badge">Java</span> <span class="badge">Computer Science</span>
+            <a href="toolhub.html" class="project-card">
+                <div class="project-bg" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1600&auto=format&fit=crop');"></div>
+                <div class="project-content">
+                    <div class="project-number">03</div>
+                    <h3 class="project-title">TOOLHUB</h3>
+                    <p class="project-desc">Arsenal centralizado de scripts. De downloaders em Python a algoritmos de estrutura de dados em Java.</p>
+                    <div class="cta-button">Ver Projeto <i class="fas fa-arrow-right"></i></div>
                 </div>
-            </div>
-
-            <div class="card">
-                <i class="fas fa-chart-line"></i>
-                <h3>JacaPromo</h3>
-                <p>Estratégia de Marketing de Afiliados com foco em conversão e curadoria de ofertas.</p>
-                <div>
-                    <span class="badge">Instagram</span> <span class="badge">Marketing</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <i class="fas fa-robot"></i>
-                <h3>Dark Channels</h3>
-                <p>Gestão e estratégia de canais no YouTube focados em nichos escaláveis e conteúdo automatizado.</p>
-                <div>
-                    <span class="badge">YouTube</span> <span class="badge">AI Content</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <i class="fas fa-gamepad"></i>
-                <h3>Show do Milhão</h3>
-                <p>Game engine educacional e corporativa desenvolvida totalmente em JavaScript puro.</p>
-                <div>
-                    <span class="badge">JS</span> <span class="badge">Web Game</span>
-                </div>
-            </div>
+            </a>
 
         </div>
-    </section>
+    </div>
 
-    <section class="stats-box">
-        <h3>Vamos conectar?</h3>
-        <p>Estou em Morrinhos-GO e aberto a conversas sobre tecnologia e automação.</p>
-    </section>
-</div>
+    <footer>Jean Frauzino &copy; 2026 <br> Morrinhos City</footer>
 
-<footer>
-    &copy; 2026 - Jean Frauzino. <br>Built with code & coffee.
-</footer>
+    <script>
+        // --- SCRIPT PAREDE DIGITAL + RASTRO (Mantido) ---
+        const canvas = document.getElementById('code-wall');
+        const ctx = canvas.getContext('2d');
+        const chars = '0123456789ABCDEF<>[]{}/\\*!@#$';
+        const charArray = chars.split('');
+        let fontSize = 16, columns, rows, drops = [], trail = [], trailLength = 20;
 
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            columns = Math.ceil(canvas.width / fontSize);
+            rows = Math.ceil(canvas.height / fontSize);
+            drops = [];
+            for (let x = 0; x < columns; x++) {
+                drops[x] = [];
+                for (let y = 0; y < rows; y++) {
+                    drops[x][y] = { char: charArray[Math.floor(Math.random() * charArray.length)] };
+                }
+            }
+        }
+
+        let mouse = { x: -1000, y: -1000 };
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            trail.unshift({x: mouse.x, y: mouse.y});
+            if(trail.length > trailLength) trail.pop();
+        });
+
+        function draw() {
+            ctx.fillStyle = '#020202';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Rastro
+            for (let i = 0; i < trail.length; i++) {
+                const pos = trail[i];
+                const ratio = 1 - (i / trailLength);
+                const size = 50 * ratio;
+                const opacity = ratio * 0.15;
+                ctx.beginPath();
+                ctx.shadowBlur = 20; ctx.shadowColor = "rgba(0, 242, 255, 1)";
+                ctx.fillStyle = `rgba(0, 242, 255, ${opacity})`;
+                ctx.arc(pos.x, pos.y, size, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+            }
+            // Parede
+            ctx.font = fontSize + 'px "Fira Code", monospace'; ctx.textBaseline = 'top';
+            for (let x = 0; x < columns; x++) {
+                for (let y = 0; y < rows; y++) {
+                    const cell = drops[x][y];
+                    const posX = x * fontSize; const posY = y * fontSize;
+                    const dx = mouse.x - posX; const dy = mouse.y - posY;
+                    const dist = Math.sqrt(dx*dx + dy*dy); const isHover = dist < 120;
+                    if (isHover) {
+                        if (Math.random() > 0.7) cell.char = charArray[Math.floor(Math.random() * charArray.length)];
+                        if (dist < 40) ctx.fillStyle = '#ffffff'; else ctx.fillStyle = '#00f2ff';
+                    } else {
+                        if (Math.random() > 0.995) cell.char = charArray[Math.floor(Math.random() * charArray.length)];
+                        ctx.fillStyle = '#1a1a2e'; 
+                    }
+                    ctx.fillText(cell.char, posX, posY);
+                }
+            }
+            requestAnimationFrame(draw);
+        }
+        window.addEventListener('resize', init);
+        init();
+        draw();
+
+        // --- NOVO SCRIPT DE SCROLL REVERSÍVEL ---
+        const observerOptions = {
+            threshold: 0.2 // Dispara quando 20% do card aparece
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // AQUI ESTÁ O SEGREDO DO EFEITO REVERSO
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible'); // Aparece
+                } else {
+                    entry.target.classList.remove('visible'); // Desaparece (Efeito reverso)
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.project-card').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
 </body>
 </html>
