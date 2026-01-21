@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIAJ | Project Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fira+Code&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #020202;
+            --text-color: #ffffff;
+            --brand-blue: #00f2ff;
+            --brand-pink: #ff0077;
+            --glass: rgba(20, 20, 25, 0.7);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        /* SCROLLBAR NEON */
+        ::-webkit-scrollbar { width: 8px; background: #050505; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-left: 1px solid rgba(255,255,255,0.05); }
+        ::-webkit-scrollbar-thumb { background: var(--brand-blue); border-radius: 4px; box-shadow: 0 0 15px var(--brand-blue); border: 1px solid rgba(255,255,255,0.5); }
+        ::-webkit-scrollbar-thumb:hover { background: #fff; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* WIDGETS */
+        #reading-progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--brand-blue); z-index: 9999; width: 0%; box-shadow: 0 0 20px var(--brand-blue); transition: width 0.1s; }
+        #system-log { position: fixed; bottom: 30px; right: 30px; background: rgba(0,0,0,0.8); border: 1px solid var(--brand-blue); padding: 10px 20px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.8rem; color: var(--brand-blue); z-index: 1000; box-shadow: 0 0 20px rgba(0, 242, 255, 0.1); display: flex; gap: 15px; align-items: center; backdrop-filter: blur(5px); transition: 0.3s; }
+        #system-log:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 242, 255, 0.3); }
+        .log-icon { animation: spin 4s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* AMBIENTE */
+        #code-wall { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background: #020202; }
+        .noise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('https://media.giphy.com/media/oEI9uBYSzLpBK/giphy.gif'); opacity: 0.04; pointer-events: none; z-index: 1; }
+        .content-wrapper { position: relative; z-index: 2; padding-bottom: 5rem; perspective: 2000px; }
+
+        /* NAV */
+        .nav-bar { position: fixed; top: 0; left: 0; width: 100%; padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; background: linear-gradient(to bottom, rgba(2,2,2,0.95), transparent); backdrop-filter: blur(5px); }
+        .back-btn { color: white; text-decoration: none; font-family: 'Fira Code', monospace; font-weight: bold; display: flex; align-items: center; gap: 10px; transition: 0.3s; border: 1px solid var(--border); padding: 8px 16px; border-radius: 4px; background: rgba(0,0,0,0.5); }
+        .back-btn:hover { border-color: var(--brand-blue); box-shadow: 0 0 15px var(--brand-blue); color: var(--brand-blue); }
+
+        /* HERO */
+        .project-header { text-align: center; padding-top: 8rem; padding-bottom: 2rem; }
+        .project-meta { font-family: 'Fira Code', monospace; color: var(--brand-pink); margin-bottom: 1rem; font-size: 0.9rem; letter-spacing: 2px; }
+        .project-title { font-family: 'Archivo Black', sans-serif; font-size: clamp(5rem, 12vw, 10rem); line-height: 0.8; color: white; text-transform: uppercase; margin-bottom: 1rem; position: relative; z-index: 2; text-shadow: 10px 10px 0px rgba(255,255,255,0.05); mix-blend-mode: difference; }
+
+        /* --- NOVO CSS DO TYPEWRITER --- */
+        .project-typewriter {
+            display: inline-block;
+            overflow: hidden;
+            border-right: 3px solid var(--brand-blue);
+            white-space: nowrap;
+            margin: 0 auto 3rem auto; /* Margem inferior para afastar das telas */
+            font-family: 'Fira Code', monospace;
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: var(--brand-blue);
+            letter-spacing: 2px;
+            max-width: 0;
+            animation: typing 3.5s steps(40, end) forwards, blink-caret .75s step-end infinite;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes typing { from { max-width: 0 } to { max-width: 100% } }
+        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: var(--brand-blue); } }
+
+
+        /* DUAL SHOWCASE */
+        .dual-showcase { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; max-width: 1400px; margin: 0 auto 5rem auto; padding: 0 2rem; perspective: 1000px; }
+        .screen-frame { position: relative; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background-size: cover; background-position: center; box-shadow: 0 30px 60px -10px rgba(0,0,0,0.8); transition: transform 0.3s ease; overflow: hidden; }
+        .screen-main { height: 65vh; transform: rotateY(5deg) translateX(10px); border: 1px solid rgba(0, 242, 255, 0.2); }
+        .screen-vertical { height: 65vh; transform: rotateY(-5deg) translateX(-10px) translateZ(20px); border: 1px solid rgba(255, 0, 119, 0.3); z-index: 5; }
+        .screen-frame:hover { transform: rotateY(0) scale(1.02) translateZ(30px); box-shadow: 0 0 50px rgba(0, 242, 255, 0.2); z-index: 10; border-color: white; }
+        .screen-label { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 5px 15px; font-family: 'Fira Code'; font-size: 0.8rem; color: white; border-left: 3px solid var(--brand-blue); }
+
+        /* GRID BENTO */
+        .info-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; max-width: 1400px; margin: 0 auto 5rem auto; padding: 0 2rem; }
+        .grid-card { background: var(--glass); border: 1px solid var(--border); padding: 3rem; backdrop-filter: blur(10px); display: flex; flex-direction: column; justify-content: space-between; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); position: relative; overflow: hidden; }
+        .grid-card:hover { border-color: var(--brand-blue); transform: translateY(-8px) scale(1.01); box-shadow: 0 15px 40px -10px rgba(0, 242, 255, 0.3), inset 0 0 30px rgba(0, 242, 255, 0.05); background: rgba(30, 30, 40, 0.95); }
+        .grid-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, var(--brand-blue)); transition: 0.5s; }
+        .grid-card:hover::before { left: 100%; transition: 0.8s; }
+        .card-large { grid-column: span 8; }
+        .card-small { grid-column: span 4; background: linear-gradient(135deg, rgba(255,255,255,0.02), transparent); }
+        .card-full { grid-column: span 12; margin-top: 2rem; }
+        .card-title { font-family: 'Archivo Black', sans-serif; font-size: 2rem; color: white; text-transform: uppercase; margin-bottom: 1rem; }
+        .card-text { font-size: 1.1rem; color: #ccc; line-height: 1.6; }
+        .big-number { font-size: 6rem; font-family: 'Archivo Black'; color: var(--brand-blue); line-height: 0.8; opacity: 0.8; text-shadow: 0 0 30px rgba(0, 242, 255, 0.3); }
+
+        /* TECH STACK */
+        .tech-panel { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 2rem; }
+        .tech-chip { padding: 8px 16px; border: 1px solid var(--border); color: #888; font-family: 'Fira Code'; text-transform: uppercase; font-size: 0.8rem; transition: 0.3s; cursor: default; }
+        .tech-chip:hover { border-color: var(--brand-blue); color: var(--brand-blue); background: rgba(0, 242, 255, 0.05); box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); transform: scale(1.1); }
+        
+        .reveal { opacity: 0; transform: translateY(50px); transition: 0.8s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 900px) { .dual-showcase { grid-template-columns: 1fr; gap: 40px; } .screen-main, .screen-vertical { height: 40vh; transform: none; } .card-large, .card-small { grid-column: span 12; } .project-title { font-size: 4rem; } #system-log { display: none; } }
+        footer { text-align: center; margin-top: 5rem; color: #444; font-family: 'Fira Code'; }
+
+
+        /* --- ATUALIZAÇÃO PARA SCROLL INTERNO --- */
+
+.screen-frame {
+    position: relative;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    /* Removemos o background-image daqui, ele vai para um elemento filho */
+    box-shadow: 0 30px 60px -10px rgba(0,0,0,0.8);
+    transition: transform 0.3s ease, border-color 0.3s;
+    overflow: hidden; /* Importante para esconder o que passa do tamanho */
+}
+
+/* TELA PRINCIPAL (Mantém fixa ou também pode ter scroll se quiser) */
+.screen-main {
+    height: 65vh;
+    transform: rotateY(5deg) translateX(10px);
+    border: 1px solid rgba(0, 242, 255, 0.2);
+    /* Mantemos background aqui se essa tela couber certinho,
+       mas para padronizar, vamos usar a img interna em ambas */
+}
+
+/* TELA VERTICAL (Onde vai ter o scroll) */
+.screen-vertical {
+    height: 65vh;
+    transform: rotateY(-5deg) translateX(-10px) translateZ(20px);
+    border: 1px solid rgba(255, 0, 119, 0.3);
+    z-index: 5;
+    /* Habilita o scroll vertical */
+    overflow-y: auto; 
+    /* Esconde a barra de rolagem padrão para ficar mais bonito */
+    scrollbar-width: thin; 
+    scrollbar-color: var(--brand-pink) #000;
+}
+
+/* Estilo da barra de rolagem específica dessa caixa */
+.screen-vertical::-webkit-scrollbar { width: 6px; }
+.screen-vertical::-webkit-scrollbar-thumb { background: var(--brand-pink); border-radius: 3px; }
+.screen-vertical::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); }
+
+
+/* A IMAGEM LONGA DENTRO DO SCROLL */
+.long-image {
+    width: 100%;
+    display: block;
+    height: auto; /* Altura automática para respeitar a proporção */
+}
+
+
+/* --- DICA VISUAL DE SCROLL (O AVISO) --- */
+.scroll-hint {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    pointer-events: none; /* Deixa o clique passar para o scroll funcionar */
+    opacity: 1;
+    transition: opacity 0.5s;
+    background: rgba(0,0,0,0.6);
+    padding: 15px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(4px);
+    z-index: 20;
+}
+
+/* Quando passar o mouse ou rolar, a dica some */
+.screen-vertical:hover .scroll-hint {
+    opacity: 0;
+}
+
+.hand-icon {
+    font-size: 1.5rem; color: white; margin-bottom: 5px;
+    animation: scroll-gesture 1.5s infinite;
+}
+
+@keyframes scroll-gesture {
+    0% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(15px); opacity: 1; }
+    100% { transform: translateY(15px); opacity: 0; }
+}
+
+.hint-text {
+    font-family: 'Fira Code', monospace; font-size: 0.7rem; color: var(--brand-pink);
+    text-transform: uppercase; margin-top: 5px;
+}
+    </style>
+</head>
+<body>
+
+    <canvas id="code-wall"></canvas>
+    <div class="noise-overlay"></div>
+    
+    <div id="reading-progress"></div>
+    
+    <div id="system-log">
+        <i class="fas fa-circle-notch log-icon"></i>
+        <span id="log-text">SYSTEM: INITIALIZING...</span>
+        <span id="log-percent" style="color: white; font-weight: bold;">0%</span>
+    </div>
+
+    <div class="content-wrapper">
+        <nav class="nav-bar">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> HUB</a>
+            <div style="font-family: 'Fira Code'; color: #666;">BUILD.V.2.1 (PRO)</div>
+        </nav>
+
+        <header class="project-header">
+            <div class="project-meta">// ELECTRON DESKTOP APP</div>
+            <h1 class="project-title">SIAJ</h1>
+            
+            <div class="project-typewriter">
+                > ANÁLISE INTELIGENTE DO DIÁRIO DA JUSTIÇA TJ-GO;
+            </div>
+        </header>
+
+        <section class="dual-showcase">
+    
+    <div class="screen-frame screen-main" style="background-image: url('assets/siaj-dashboard.png'); background-size: cover;">
+        <div class="screen-label">MAIN_INTERFACE</div>
+    </div>
+
+    <div class="screen-frame screen-vertical">
+        
+        <div class="scroll-hint">
+            <i class="fas fa-hand-pointer hand-icon"></i>
+            <span class="hint-text">Scroll</span>
+        </div>
+
+        <img src="assets/siaj-config.png" class="long-image" alt="Configurações">
+        
+        <div class="screen-label" style="border-color: var(--brand-pink); position: sticky; bottom: 20px;">SETTINGS_PANEL</div>
+    </div>
+
+</section>
+
+        <section class="info-grid">
+            
+            <div class="grid-card card-large reveal">
+                <div>
+                    <h2 class="card-title" style="color: var(--brand-pink);">O Problema</h2>
+                    <p class="card-text">
+                        A rotina era travada por um trabalho manual que tomava muito tempo do operador. 
+                        A necessidade de baixar arquivos, analisar localmente e enviar por email manualmente, criava um fluxo ineficiente e propenso a baixa acertividade.
+                    </p>
+                </div>
+                <div style="margin-top: 2rem; font-family: 'Fira Code'; color: var(--brand-pink);"> > STATUS: CRITICAL_BOTTLENECK</div>
+            </div>
+
+            <div class="grid-card card-small reveal">
+                <div class="big-number">JS</div>
+                <p class="card-text">Fullstack JavaScript: Do Frontend ao controle do Sistema Operacional.</p>
+            </div>
+
+            <div class="grid-card card-small reveal" style="background: rgba(0, 242, 255, 0.05);">
+                <i class="fas fa-hdd" style="font-size: 3rem; color: var(--brand-blue); margin-bottom: 1rem;"></i>
+                <h3 style="font-family: 'Fira Code'; color: white;">LOCAL FIRST</h3>
+                <p class="card-text" style="margin-top: 10px;">Manipulação direta de arquivos (File System) sem latência de rede.</p>
+            </div>
+
+            <div class="grid-card card-large reveal">
+                <h2 class="card-title" style="color: var(--brand-blue);">A Solução (V1)</h2>
+                <p class="card-text">
+                    O <strong>SIAJ Desktop</strong> nasceu para rodar nativamente. Utilizando o poder do Node.js no backend local, o sistema acessa o site do TJ-Go, baixa PDFs pesados instantaneamente, faz a análise, resumo e envio automático por email e WhatsApp.
+                </p>
+                <p class="card-text" style="margin-top: 10px;">
+                    Isso eliminou o tempo necessário para essa atividade e permitiu funcionalidades que um site comum não conseguiria fazer.
+                </p>
+            </div>
+
+            <div class="grid-card card-full reveal">
+                <h2 class="card-title">Stack Atual (Legacy)</h2>
+                <div class="tech-panel">
+                    <div class="tech-chip">Electron</div>
+                    <div class="tech-chip">Node.js (Backend Local)</div>
+                    <div class="tech-chip">Vanilla JS / ES6</div>
+                    <div class="tech-chip">HTML5 & CSS3</div>
+                    <div class="tech-chip">WhatsApp (API)</div>
+                    <div class="tech-chip">Gemini Pro (API)</div>
+                </div>
+            </div>
+        </section>
+
+        <footer> JEAN FRAUZINO &copy; 2026 <br> MIGRATING TO WEB... SOON </footer>
+    </div>
+
+    <script>
+        // 1. ENGINE GRÁFICA: PAREDE DIGITAL + RASTRO (IGUAL À HOME)
+        const canvas = document.getElementById('code-wall');
+        const ctx = canvas.getContext('2d');
+        const chars = '0123456789ABCDEF<>[]{}/\\*!@#$';
+        const charArray = chars.split('');
+        
+        let fontSize = 16;
+        let columns, rows;
+        let drops = []; // Grade de letras
+        let trail = []; // Rastro do mouse
+        const trailLength = 20;
+
+        function initBG() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            columns = Math.ceil(canvas.width / fontSize);
+            rows = Math.ceil(canvas.height / fontSize);
+            
+            drops = [];
+            for (let x = 0; x < columns; x++) {
+                drops[x] = [];
+                for (let y = 0; y < rows; y++) {
+                    drops[x][y] = { char: charArray[Math.floor(Math.random() * charArray.length)] };
+                }
+            }
+        }
+
+        let mouse = { x: -1000, y: -1000 };
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            trail.unshift({x: mouse.x, y: mouse.y});
+            if(trail.length > trailLength) trail.pop();
+        });
+
+        function drawBG() {
+            // Limpa o canvas
+            ctx.fillStyle = '#020202';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // A. RASTRO
+            for (let i = 0; i < trail.length; i++) {
+                const pos = trail[i];
+                const ratio = 1 - (i / trailLength);
+                const size = 50 * ratio; 
+                const opacity = ratio * 0.15;
+                ctx.beginPath();
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = "rgba(0, 242, 255, 1)";
+                ctx.fillStyle = `rgba(0, 242, 255, ${opacity})`;
+                ctx.arc(pos.x, pos.y, size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            // B. GRADE FIXA
+            ctx.font = fontSize + 'px "Fira Code", monospace';
+            ctx.textBaseline = 'top';
+
+            for (let x = 0; x < columns; x++) {
+                for (let y = 0; y < rows; y++) {
+                    const cell = drops[x][y];
+                    const posX = x * fontSize;
+                    const posY = y * fontSize;
+
+                    const dx = mouse.x - posX;
+                    const dy = mouse.y - posY;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    const isHover = dist < 120;
+
+                    if (isHover) {
+                        if (Math.random() > 0.7) cell.char = charArray[Math.floor(Math.random() * charArray.length)];
+                        if (dist < 40) ctx.fillStyle = '#ffffff'; else ctx.fillStyle = '#00f2ff';
+                    } else {
+                        if (Math.random() > 0.995) cell.char = charArray[Math.floor(Math.random() * charArray.length)];
+                        ctx.fillStyle = '#1a1a2e'; 
+                    }
+                    ctx.fillText(cell.char, posX, posY);
+                }
+            }
+            requestAnimationFrame(drawBG);
+        }
+        window.addEventListener('resize', initBG);
+        initBG();
+        drawBG();
+
+        // 2. SCROLL REVEAL & WIDGET LOGIC
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) entry.target.classList.add('active');
+                else entry.target.classList.remove('active');
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        const progressBar = document.getElementById('reading-progress');
+        const logText = document.getElementById('log-text');
+        const logPercent = document.getElementById('log-percent');
+
+        window.addEventListener('scroll', () => {
+            let scrollTop = document.documentElement.scrollTop;
+            let docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            let scrollPercent = (scrollTop / docHeight) * 100;
+            
+            if(progressBar) progressBar.style.width = scrollPercent + '%';
+            if(logPercent) logPercent.innerText = Math.round(scrollPercent) + '%';
+
+            if(logText) {
+                if (scrollPercent < 10) { logText.innerText = "SYSTEM: STANDBY"; logText.style.color = "#00f2ff"; }
+                else if (scrollPercent < 40) { logText.innerText = "ACCESSING: DASHBOARD"; logText.style.color = "#ffffff"; }
+                else if (scrollPercent < 70) { logText.innerText = "PROCESSING: METRICS"; logText.style.color = "#ff0077"; }
+                else { logText.innerText = "STATUS: COMPLETE"; logText.style.color = "#00f2ff"; }
+            }
+        });
+    </script>
+</body>
+</html>

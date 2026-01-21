@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locked | Coming Soon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fira+Code&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #020202;
+            --text-color: #ffffff;
+            --brand-blue: #00f2ff;
+            --brand-pink: #ff0077;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden; /* Sem scroll nessa tela */
+            height: 100vh;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+
+        /* AMBIENTE */
+        #code-wall { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background: #020202; }
+        .noise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('https://media.giphy.com/media/oEI9uBYSzLpBK/giphy.gif'); opacity: 0.04; pointer-events: none; z-index: 1; }
+        
+        .container {
+            position: relative; z-index: 2; text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 4rem;
+            border-radius: 12px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            max-width: 600px; width: 90%;
+        }
+
+        .lock-icon {
+            font-size: 5rem; color: var(--brand-pink);
+            margin-bottom: 2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { text-shadow: 0 0 10px var(--brand-pink); transform: scale(1); }
+            50% { text-shadow: 0 0 30px var(--brand-pink), 0 0 10px white; transform: scale(1.1); }
+            100% { text-shadow: 0 0 10px var(--brand-pink); transform: scale(1); }
+        }
+
+        h1 {
+            font-family: 'Archivo Black', sans-serif;
+            font-size: 3rem; text-transform: uppercase; margin-bottom: 1rem;
+            background: linear-gradient(to right, #fff, #aaa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            font-family: 'Fira Code', monospace; color: var(--brand-blue);
+            margin-bottom: 2rem; letter-spacing: 1px;
+        }
+
+        /* BARRA DE LOAD */
+        .loader-container {
+            width: 100%; height: 6px; background: rgba(255,255,255,0.1);
+            border-radius: 3px; overflow: hidden; position: relative;
+            margin-bottom: 2rem;
+        }
+        
+        .loader-bar {
+            height: 100%; width: 50%; background: var(--brand-blue);
+            box-shadow: 0 0 15px var(--brand-blue);
+            position: absolute; left: -50%;
+            animation: load 2s infinite cubic-bezier(0.65, 0.05, 0.36, 1);
+        }
+
+        @keyframes load {
+            0% { left: -50%; width: 30%; }
+            50% { left: 20%; width: 60%; }
+            100% { left: 100%; width: 10%; }
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border: 1px solid var(--brand-blue);
+            color: var(--brand-blue);
+            text-decoration: none;
+            font-family: 'Fira Code', monospace;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: var(--brand-blue); color: black;
+            box-shadow: 0 0 20px var(--brand-blue);
+        }
+
+    </style>
+</head>
+<body>
+
+    <canvas id="code-wall"></canvas>
+    <div class="noise-overlay"></div>
+
+    <div class="container">
+        <i class="fas fa-lock lock-icon"></i>
+        <h1>Em Breve</h1>
+        <p>> SYSTEM.BUILDING(MODULE_ASSETS)...</p>
+        
+        <div class="loader-container">
+            <div class="loader-bar"></div>
+        </div>
+
+        <p style="font-size: 0.8rem; opacity: 0.7; margin-bottom: 2rem;">
+            Essa página será atualizada em breve....
+        </p>
+
+        <a href="index.html" class="back-btn">Voltar ao HUB</a>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('code-wall');
+        const ctx = canvas.getContext('2d');
+        const chars = '0123456789ABCDEF<>[]{}/\\*!@#$';
+        const charArray = chars.split('');
+        let fontSize = 16, columns, rows, drops = [], trail = [];
+        const trailLength = 20;
+
+        function initBG() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            columns = Math.ceil(canvas.width / fontSize);
+            rows = Math.ceil(canvas.height / fontSize);
+            drops = [];
+            for (let x = 0; x < columns; x++) {
+                drops[x] = [];
+                for (let y = 0; y < rows; y++) {
+                    drops[x][y] = { char: charArray[Math.floor(Math.random() * charArray.length)] };
+                }
+            }
+        }
+
+        let mouse = { x: -1000, y: -1000 };
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX; mouse.y = e.clientY;
+            trail.unshift({x: mouse.x, y: mouse.y});
+            if(trail.length > trailLength) trail.pop();
+        });
+
+        function drawBG() {
+            ctx.fillStyle = '#020202'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Rastro
+            for (let i = 0; i < trail.length; i++) {
+                const pos = trail[i]; const ratio = 1 - (i / trailLength);
+                const size = 50 * ratio; const opacity = ratio * 0.15;
+                ctx.beginPath(); ctx.shadowBlur = 20; ctx.shadowColor = "rgba(0, 242, 255, 1)";
+                ctx.fillStyle = `rgba(0, 242, 255, ${opacity})`;
+                ctx.arc(pos.x, pos.y, size, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+            }
+            // Letras
+            ctx.font = fontSize + 'px "Fira Code", monospace'; ctx.textBaseline = 'top';
+            for (let x = 0; x < columns; x++) {
+                for (let y = 0; y < rows; y++) {
+                    const cell = drops[x][y]; const posX = x * fontSize; const posY = y * fontSize;
+                    const dx = mouse.x - posX; const dy = mouse.y - posY;
+                    const dist = Math.sqrt(dx*dx + dy*dy); const isHover = dist < 120;
+                    if (isHover) {
+                        if (Math.random() > 0.7) cell.char = charArray[Math.floor(Math.random() * charArray.length)];
+                        if (dist < 40) ctx.fillStyle = '#ffffff'; else ctx.fillStyle = '#00f2ff';
+                    } else {
+                        if (Math.random() > 0.995) cell.char = charArray[Math.floor(Math.random() * charArray.length)];
+                        ctx.fillStyle = '#1a1a2e'; 
+                    }
+                    ctx.fillText(cell.char, posX, posY);
+                }
+            }
+            requestAnimationFrame(drawBG);
+        }
+        window.addEventListener('resize', initBG); initBG(); drawBG();
+    </script>
+</body>
+</html>
