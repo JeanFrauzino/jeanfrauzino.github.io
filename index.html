@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jean Frauzino | Portfolio</title>
+    <title>Jean Frauzino | Portfolio VI</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fira+Code&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -236,11 +236,59 @@
 
         footer { text-align: center; padding: 3rem; font-size: 0.8rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 2px; }
 
-        
+        .hero-title, .typewriter {
+    will-change: transform, opacity;
+    /* Garante que o ponto de zoom seja o centro */
+    transform-origin: center center; 
+}
+
+
+
+/* Esconde o cursor padrão em tudo */
+body, a, button { cursor: none; }
+
+/* O Ponto Central */
+.cursor-dot {
+    width: 8px; height: 8px; background: var(--brand-blue);
+    position: fixed; top: 0; left: 0; border-radius: 50%;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 10px var(--brand-blue);
+}
+
+/* O Círculo Externo (com delay) */
+.cursor-outline {
+    width: 40px; height: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    position: fixed; top: 0; left: 0; border-radius: 50%;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s, background 0.2s;
+}
+
+/* Estado "Hover" (Quando passa em links) */
+body.hovering .cursor-outline {
+    width: 60px; height: 60px;
+    background: rgba(0, 242, 255, 0.1);
+    border-color: var(--brand-blue);
+    box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);
+}
+
+.page-transition {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #020202;
+    z-index: 10000;
+    pointer-events: none;
+    opacity: 1; /* Começa visível (tela preta) */
+    transition: opacity 0.8s ease-in-out;
+}
+
     </style>
 </head>
 <body>
-
+    <div class="cursor-dot"></div>
+<div class="cursor-outline"></div>
+<div class="page-transition"></div>
     <canvas id="code-wall"></canvas>
     <div class="noise-overlay"></div>
 
@@ -268,7 +316,7 @@
                 </div>
             </a>
 
-            <a href="coming-soon.html" class="project-card">
+            <a href="alembraeu.html" class="project-card">
                 <div class="project-bg" style="background-image: url('https://images.unsplash.com/photo-1611746872915-64382b5c76da?q=80&w=1600&auto=format&fit=crop');"></div>
                 <div class="project-content">
                     <div class="project-number">02</div>
@@ -278,7 +326,7 @@
                 </div>
             </a>
 
-            <a href="coming-soon.html" class="project-card">
+            <a href="toolhub.html" class="project-card">
                 <div class="project-bg" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1600&auto=format&fit=crop');"></div>
                 <div class="project-content">
                     <div class="project-number">03</div>
@@ -361,6 +409,52 @@
         init();
         draw();
 
+
+        // =================================================================
+        // NOVO: EFEITO ZOOM NO TÍTULO AO ROLAR (SCROLL HERO)
+        // =================================================================
+        const heroTitle = document.querySelector('.hero-title');
+        const subTitle = document.querySelector('.typewriter');
+        const headerIcons = document.querySelector('header div[style*="margin-top"]'); // Seleciona os ícones
+        const scrollIndicator = document.querySelector('.scroll-indicator');
+
+        window.addEventListener('scroll', () => {
+            const scroll = window.scrollY;
+            
+            // Só executa o cálculo se estiver no topo da página (economia de performance)
+            if (scroll < 800) {
+                
+                // 1. ZOOM (Cresce conforme desce)
+                // Começa em 1. A cada 100px de scroll, cresce 0.3
+                const scale = 1 + (scroll * 0.003); 
+
+                // 2. FADE OUT (Some conforme desce)
+                // Fica totalmente transparente aos 400px de scroll
+                const opacity = 1 - (scroll * 0.0025);
+
+                // 3. PARALLAX (Mantém o texto no centro por mais tempo)
+                // Empurra o texto para baixo na metade da velocidade do scroll
+                const translateY = scroll * 0.5;
+
+                // Aplica os efeitos no TÍTULO (JEAN FRAUZINO)
+                if (opacity >= 0) {
+                    heroTitle.style.transform = `translateY(${translateY}px) scale(${scale})`;
+                    heroTitle.style.opacity = opacity;
+                    // Mantém o glitch funcionando (pois o glitch é CSS animation)
+                } else {
+                    heroTitle.style.opacity = 0; // Garante que suma
+                }
+
+                // Aplica fade out mais rápido nos subtítulos e ícones para limpar a visão
+                if (subTitle) {
+                    subTitle.style.opacity = 1 - (scroll * 0.005);
+                    subTitle.style.transform = `translateY(${translateY}px)`;
+                }
+                if (headerIcons) headerIcons.style.opacity = 1 - (scroll * 0.005);
+                if (scrollIndicator) scrollIndicator.style.opacity = 1 - (scroll * 0.01);
+            }
+        });
+
         // --- NOVO SCRIPT DE SCROLL REVERSÍVEL ---
         const observerOptions = {
             threshold: 0.2 // Dispara quando 20% do card aparece
@@ -380,7 +474,61 @@
         document.querySelectorAll('.project-card').forEach(el => {
             observer.observe(el);
         });
+
+        // --- SCRIPT DO CURSOR TÁTICO ---
+const cursorDot = document.querySelector('.cursor-dot');
+const cursorOutline = document.querySelector('.cursor-outline');
+
+window.addEventListener('mousemove', (e) => {
+    const posX = e.clientX;
+    const posY = e.clientY;
+
+    // Ponto segue instantaneamente
+    cursorDot.style.left = `${posX}px`;
+    cursorDot.style.top = `${posY}px`;
+
+    // Círculo tem um movimento fluido (animação via CSS ou delay direto)
+    cursorOutline.animate({
+        left: `${posX}px`,
+        top: `${posY}px`
+    }, { duration: 500, fill: "forwards" });
+});
+
+// Detectar Links para mudar o cursor
+const interactables = document.querySelectorAll('a, button, .project-card, .neon-button');
+interactables.forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+});
+
+const transitionEl = document.querySelector('.page-transition');
+
+// 1. Ao carregar a página: Fade In (Preto -> Transparente)
+window.onload = () => {
+    setTimeout(() => {
+        transitionEl.style.opacity = 0;
+    }, 100); // Pequeno delay para garantir
+};
+
+// 2. Ao clicar em links: Fade Out (Transparente -> Preto)
+document.querySelectorAll('a').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        const target = this.getAttribute('href');
+        
+        // Só ativa se for link interno e não tiver target="_blank"
+        if (target.startsWith('#') || target.startsWith('http') || this.target === '_blank') return;
+
+        e.preventDefault(); // Impede o carregamento imediato
+        transitionEl.style.opacity = 1; // Escurece a tela
+
+        // Espera a animação acabar (800ms) e muda de página
+        setTimeout(() => {
+            window.location.href = target;
+        }, 800);
+    });
+});
+
+
     </script>
 </body>
 </html>
-
