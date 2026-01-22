@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOOLHUB | Developer Utils</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fira+Code&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-color: #ffffff;
+            /* PALETA INDUSTRIAL (Amber/Gold) */
+            --brand-amber: #ffae00;  
+            --brand-dark: #1a1500;
+            --glass: rgba(20, 15, 5, 0.95);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body, a, button { cursor: none; }
+
+        /* SCROLLBAR AMBER */
+        ::-webkit-scrollbar { width: 8px; background: #050505; }
+        ::-webkit-scrollbar-track { background: rgba(255, 174, 0, 0.05); }
+        ::-webkit-scrollbar-thumb { background: var(--brand-amber); border-radius: 4px; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* CURSOR & UTILS */
+        .cursor-dot { width: 8px; height: 8px; background: var(--brand-amber); position: fixed; top: 0; left: 0; border-radius: 50%; pointer-events: none; z-index: 99999; transform: translate(-50%, -50%); }
+        .cursor-outline { width: 40px; height: 40px; border: 1px solid rgba(255, 255, 255, 0.5); position: fixed; top: 0; left: 0; border-radius: 50%; pointer-events: none; z-index: 99998; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, background 0.2s; }
+        body.hovering .cursor-outline { width: 60px; height: 60px; background: rgba(255, 174, 0, 0.1); border-color: var(--brand-amber); }
+        .page-transition { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #020202; z-index: 10000; pointer-events: none; opacity: 1; transition: opacity 0.8s ease-in-out; }
+
+        /* WIDGETS */
+        #reading-progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--brand-amber); z-index: 9999; width: 0%; box-shadow: 0 0 20px var(--brand-amber); transition: width 0.1s; }
+        #system-log { position: fixed; bottom: 30px; right: 30px; background: rgba(0,0,0,0.8); border: 1px solid var(--brand-amber); padding: 10px 20px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.8rem; color: var(--brand-amber); z-index: 1000; box-shadow: 0 0 20px rgba(255, 174, 0, 0.1); display: flex; gap: 15px; align-items: center; backdrop-filter: blur(5px); transition: 0.3s; }
+        .log-icon { animation: blink 2s infinite; } @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* AMBIENTE */
+        #code-wall { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+        .noise-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: url('https://media.giphy.com/media/oEI9uBYSzLpBK/giphy.gif'); opacity: 0.04; pointer-events: none; z-index: 1; }
+        .content-wrapper { position: relative; z-index: 2; padding-bottom: 5rem; perspective: 2000px; }
+
+        /* NAV */
+        .nav-bar { position: fixed; top: 0; left: 0; width: 100%; padding: 2rem 3rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; background: linear-gradient(to bottom, rgba(5,5,5,0.95), transparent); backdrop-filter: blur(5px); }
+        .back-btn { color: white; text-decoration: none; font-family: 'Fira Code', monospace; font-weight: bold; display: flex; align-items: center; gap: 10px; transition: 0.3s; border: 1px solid var(--border); padding: 8px 16px; border-radius: 4px; background: rgba(0,0,0,0.5); }
+        .back-btn:hover { border-color: var(--brand-amber); color: var(--brand-amber); }
+
+        /* HERO */
+        .project-header { text-align: center; padding-top: 8rem; padding-bottom: 2rem; }
+        .project-meta { font-family: 'Fira Code', monospace; color: var(--brand-amber); margin-bottom: 1rem; font-size: 0.9rem; letter-spacing: 2px; }
+        .project-title { font-family: 'Archivo Black', sans-serif; font-size: clamp(4rem, 10vw, 8rem); line-height: 0.8; color: white; text-transform: uppercase; margin-bottom: 1rem; position: relative; z-index: 2; text-shadow: 10px 10px 0px rgba(255,255,255,0.05); mix-blend-mode: overlay; }
+        .project-typewriter { display: inline-block; overflow: hidden; border-right: 3px solid var(--brand-amber); white-space: nowrap; margin: 0 auto 3rem auto; font-family: 'Fira Code', monospace; font-size: clamp(0.9rem, 2vw, 1.2rem); color: var(--brand-amber); letter-spacing: 2px; max-width: 0; animation: typing 3.5s steps(40, end) forwards, blink-caret .75s step-end infinite; animation-delay: 0.5s; }
+        @keyframes typing { from { max-width: 0 } to { max-width: 100% } } @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: var(--brand-amber); } }
+
+        /* --- O SISTEMA OPERACIONAL (VIEWPORT) --- */
+        .os-container { max-width: 1200px; margin: 0 auto 5rem auto; padding: 0 2rem; }
+
+        .system-viewport {
+            height: 650px; width: 100%;
+            background: #000; border: 2px solid #333; border-radius: 12px;
+            position: relative; overflow: hidden;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+            background-image: radial-gradient(#1a1500 1px, transparent 1px);
+            background-size: 20px 20px; 
+        }
+
+        /* BARRA SUPERIOR */
+        .sys-top-bar {
+            position: absolute; top: 0; left: 0; width: 100%; height: 40px;
+            background: rgba(20, 15, 5, 0.9); border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 20px; z-index: 50; font-family: 'Fira Code', monospace; font-size: 0.8rem; color: #666;
+        }
+        .sys-status-dot { width: 8px; height: 8px; background: var(--brand-amber); border-radius: 50%; box-shadow: 0 0 10px var(--brand-amber); }
+        .sys-home-btn { padding: 5px 15px; border: 1px solid #444; border-radius: 4px; cursor: pointer; transition: 0.3s; color: white; display: none; align-items: center; gap: 8px; background: rgba(0,0,0,0.5); }
+        .sys-home-btn:hover { border-color: var(--brand-amber); color: var(--brand-amber); }
+        .sys-home-btn.visible { display: flex; animation: fadeIn 0.5s; }
+
+        /* --- TELA 1: LAUNCHER (HOME) --- */
+        .screen-launcher {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            padding: 80px 40px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: 0.5s ease-in-out; opacity: 1; transform: scale(1);
+        }
+        .screen-launcher.hidden { opacity: 0; transform: scale(1.1); pointer-events: none; }
+
+        .launcher-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; width: 100%; max-width: 800px; }
+        .app-card {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border);
+            padding: 2rem; border-radius: 12px; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; gap: 15px;
+            transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .app-card:hover { background: rgba(255, 174, 0, 0.1); border-color: var(--brand-amber); transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .app-icon { font-size: 3rem; color: #555; transition: 0.3s; }
+        .app-card:hover .app-icon { color: var(--brand-amber); transform: scale(1.1); text-shadow: 0 0 20px var(--brand-amber); }
+        .app-title { font-family: 'Archivo Black'; font-size: 1.2rem; text-transform: uppercase; color: white; }
+        .app-desc { font-family: 'Inter'; font-size: 0.9rem; color: #888; text-align: center; }
+
+        /* --- TELA DIVIDIDA (SPLIT VIEW) PARA OS MÓDULOS --- */
+        .app-screen {
+            position: absolute; top: 40px; left: 0; width: 100%; height: calc(100% - 40px);
+            background: #000;
+            opacity: 0; visibility: hidden; transform: scale(0.95);
+            transition: 0.5s ease-in-out;
+            display: flex; /* FLEXBOX PARA DIVIDIR */
+        }
+        .app-screen.active { opacity: 1; visibility: visible; transform: scale(1); }
+
+        /* Metade Imagem */
+        .split-image {
+            flex: 6; /* 60% */
+            position: relative; border-right: 1px solid #333; overflow: hidden;
+        }
+        /* Para o módulo da direita, removemos a borda direita e pomos na esquerda se quisermos, ou deixamos sem */
+        
+        .split-image img { width: 100%; height: 100%; object-fit: contain; }
+
+        /* Metade Texto (Dashboard) */
+        .split-info {
+            flex: 4; /* 40% */
+            background: rgba(10, 8, 0, 0.9);
+            padding: 2rem;
+            display: flex; flex-direction: column; justify-content: center;
+            overflow-y: auto;
+        }
+
+        .split-title { font-family: 'Archivo Black'; font-size: 1.8rem; color: var(--brand-amber); margin-bottom: 0.5rem; text-transform: uppercase; }
+        .split-subtitle { font-family: 'Fira Code'; font-size: 0.8rem; color: #666; margin-bottom: 2rem; display: block; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        
+        .feature-list { list-style: none; margin-bottom: 2rem; }
+        .feature-list li {
+            margin-bottom: 15px; padding-left: 20px; position: relative;
+            font-family: 'Inter'; font-size: 0.95rem; color: #ccc;
+        }
+        .feature-list li::before {
+            content: '>'; position: absolute; left: 0; color: var(--brand-amber); font-family: 'Fira Code'; font-weight: bold;
+        }
+
+        .status-box {
+            background: rgba(255, 174, 0, 0.05); border: 1px solid var(--brand-amber);
+            padding: 10px; border-radius: 4px; margin-top: auto;
+        }
+        .status-row { display: flex; justify-content: space-between; font-family: 'Fira Code'; font-size: 0.75rem; color: var(--brand-amber); margin-bottom: 5px; }
+
+        /* OVERLAYS (SIMULAÇÃO) */
+        .overlay-terminal {
+            position: absolute; bottom: 30px; left: 30px; width: 300px;
+            background: rgba(0,0,0,0.9); border: 1px solid var(--brand-amber);
+            padding: 15px; font-family: 'Fira Code', monospace; font-size: 0.8rem; color: var(--brand-amber);
+            border-radius: 8px; box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            transform: translateY(20px); opacity: 0; transition: 0.5s 0.3s;
+        }
+        .app-screen.active .overlay-terminal { transform: translateY(0); opacity: 1; }
+
+        .overlay-crypto {
+            position: absolute; top: 30px; right: 30px;
+            background: rgba(0,0,0,0.9); border: 1px solid #00ff88;
+            padding: 10px 20px; font-family: 'Fira Code', monospace; color: #00ff88;
+            border-radius: 50px; display: flex; gap: 15px; align-items: center;
+            transform: translateY(-20px); opacity: 0; transition: 0.5s 0.3s;
+        }
+        .app-screen.active .overlay-crypto { transform: translateY(0); opacity: 1; }
+        .live-dot { width: 8px; height: 8px; background: #00ff88; border-radius: 50%; animation: pulse-green 1s infinite; }
+        @keyframes pulse-green { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+
+
+        /* GRID BENTO & FOOTER */
+        .info-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; max-width: 1200px; margin: 0 auto 5rem auto; padding: 0 2rem; }
+        .grid-card { background: var(--glass); border: 1px solid var(--border); padding: 3rem; backdrop-filter: blur(10px); display: flex; flex-direction: column; justify-content: space-between; transition: 0.4s; position: relative; overflow: hidden; }
+        .grid-card:hover { border-color: var(--brand-amber); transform: translateY(-8px) scale(1.01); box-shadow: 0 15px 40px -10px rgba(255, 174, 0, 0.2); background: rgba(30, 25, 10, 0.9); }
+        .grid-card::before { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, var(--brand-amber)); transition: 0.5s; }
+        .grid-card:hover::before { left: 100%; transition: 0.8s; }
+        .card-large { grid-column: span 8; }
+        .card-small { grid-column: span 4; background: linear-gradient(135deg, rgba(255,255,255,0.02), transparent); }
+        .card-full { grid-column: span 12; margin-top: 2rem; }
+        .card-title { font-family: 'Archivo Black'; font-size: 2rem; margin-bottom: 1rem; }
+        .card-text { font-size: 1.1rem; color: #ccc; line-height: 1.6; }
+        .big-number { font-size: 6rem; font-family: 'Archivo Black'; color: var(--brand-amber); line-height: 0.8; opacity: 0.8; text-shadow: 0 0 30px rgba(255, 174, 0, 0.3); }
+
+        .tech-panel { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 2rem; }
+        .tech-chip { padding: 8px 16px; border: 1px solid var(--border); color: #888; font-family: 'Fira Code'; font-size: 0.8rem; transition: 0.3s; }
+        .tech-chip:hover { border-color: var(--brand-amber); color: var(--brand-amber); transform: scale(1.1); }
+
+        .cta-section { text-align: center; margin: 6rem auto 2rem auto; padding: 4rem 2rem; background: radial-gradient(circle, rgba(255, 174, 0, 0.05) 0%, transparent 70%); }
+        .neon-button { display: inline-flex; align-items: center; gap: 15px; padding: 1.5rem 3rem; border: 2px solid var(--brand-amber); color: var(--brand-amber); font-family: 'Fira Code'; font-weight: bold; font-size: 1.2rem; text-decoration: none; transition: 0.3s; }
+        .neon-button:hover { background: var(--brand-amber); color: black; box-shadow: 0 0 60px var(--brand-amber); transform: scale(1.05); }
+
+        .reveal { opacity: 0; transform: translateY(50px); transition: 0.8s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 900px) { 
+            .card-large, .card-small { grid-column: span 12; } 
+            .project-title { font-size: 3.5rem; } 
+            .system-viewport { height: 800px; } /* Mais alto no mobile */
+            .launcher-grid { grid-template-columns: 1fr; }
+            .app-screen { flex-direction: column !important; } /* Empilha no mobile */
+            .split-image, .split-info { flex: auto; height: 50%; width: 100%; border: none; }
+            #system-log { display: none; }
+        }
+        footer { text-align: center; margin-top: 5rem; color: #444; font-family: 'Fira Code'; }
+    </style>
+</head>
+<body>
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+    <div class="page-transition"></div>
+
+    <canvas id="code-wall"></canvas>
+    <div class="noise-overlay"></div>
+    
+    <div id="reading-progress"></div>
+    <div id="system-log">
+        <i class="fas fa-terminal log-icon"></i>
+        <span id="log-text">MODULE: READY</span>
+        <span id="log-percent" style="color: white; font-weight: bold;">0%</span>
+    </div>
+
+    <div class="content-wrapper">
+        <nav class="nav-bar">
+            <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> HUB</a>
+            <div style="font-family: 'Fira Code'; color: #666;">TOOLHUB.V.3.0</div>
+        </nav>
+
+        <header class="project-header">
+            <div class="project-meta">// DEVELOPER UTILITY KIT</div>
+            <h1 class="project-title">TOOLHUB</h1>
+            <div class="project-typewriter"> > PENSOU COMANDOS ? PENSOU CRIPTO ? PENSOU TOOLHUB!</div>
+        </header>
+
+        <section class="os-container">
+            
+            <div class="system-viewport reveal">
+                
+                <div class="sys-top-bar">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="sys-status-dot"></div>
+                        <span>SYSTEM_ONLINE</span>
+                    </div>
+                    <div class="sys-home-btn" id="home-btn" onclick="goHome()">
+                        <i class="fas fa-th"></i> MENU
+                    </div>
+                    <span>USER: ADMIN</span>
+                </div>
+
+                <div class="screen-launcher" id="launcher-view">
+                    <h2 style="font-family: 'Archivo Black'; margin-bottom: 2rem; color: #666;">SELECT MODULE</h2>
+                    <div class="launcher-grid">
+                        
+                        <div class="app-card" onclick="openApp('cmd')">
+                            <i class="fas fa-terminal app-icon"></i>
+                            <div class="app-title">Comandos</div>
+                            <div class="app-desc">Snippets e Automação</div>
+                        </div>
+
+                        <div class="app-card" onclick="openApp('crypto')">
+                            <i class="fas fa-chart-line app-icon"></i>
+                            <div class="app-title">CriptoView</div>
+                            <div class="app-desc">Monitoramento de Ativos</div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="app-screen" id="app-cmd">
+                    <div class="split-image">
+                        <img src="assets/toolhub-cmd.png" alt="Tela de Comandos">
+                        <div class="overlay-terminal">
+                            > npm install toolkit<br>
+                            > git commit -m "fix"<br>
+                            <span style="color: #fff">>> SNIPPET COPIED!</span>
+                        </div>
+                    </div>
+
+                    <div class="split-info">
+                        <h2 class="split-title">CLI Module</h2>
+                        <span class="split-subtitle">VERSION: 3.3.0 (STABLE)</span>
+                        <ul class="feature-list">
+                            <li>Biblioteca local de comandos.</li>
+                            <li>Facilidade de criação e edição de comandos.</li>
+                            <li>CLI com retorno instantâneo.</li>
+                            <li>Alertas no Telegram sobre comandos executados.</li>
+                        </ul>
+                        <div class="status-box">
+                            <div class="status-row"><span>STORAGE:</span> <span>LOCAL_JSON</span></div>
+                            <div class="status-row"><span>HOTKEYS:</span> <span>ENABLED</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="app-screen" id="app-crypto">
+                    <div class="split-info" style="border-right: 1px solid #333;">
+                        <h2 class="split-title">CriptoView</h2>
+                        <span class="split-subtitle">API: COINGECKO (LIVE)</span>
+                        <ul class="feature-list">
+                            <li>Monitoramento de ativos em tempo real.</li>
+                            <li>Alertas de preço configuráveis.</li>
+                            <li>Configure a sua posição e veja seu lucro.</li>
+                            <li>Várias Criptomoedas disponíveis.</li>
+                        </ul>
+                        <div class="status-box" style="border-color: #00ff88; background: rgba(0,255,136,0.05);">
+                            <div class="status-row" style="color: #00ff88;"><span>SERVER:</span> <span>CONNECTED</span></div>
+                            <div class="status-row" style="color: #00ff88;"><span>LATENCY:</span> <span>24ms</span></div>
+                        </div>
+                    </div>
+
+                    <div class="split-image" style="border-right: none;">
+                        <img src="assets/toolhub-crypto.png" alt="Tela Crypto">
+                        <div class="overlay-crypto">
+                            <div class="live-dot"></div>
+                            <span>BTC: $98,420 (+2%)</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="info-grid">
+            <div class="grid-card card-large reveal">
+                <div>
+                    <h2 class="card-title" style="color: var(--brand-amber);">Utility Belt</h2>
+                    <p class="card-text">Desenvolvedores perdem tempo repetindo tarefas simples. O Toolhub é a central que elimina essas micro-fricções com ferramentas rápidas e offline-first.</p>
+                </div>
+            </div>
+            <div class="grid-card card-small reveal">
+                <div class="big-number">2+</div>
+                <p class="card-text">Módulos ativos.</p>
+            </div>
+            <div class="grid-card card-small reveal" style="background: rgba(255, 174, 0, 0.05);">
+                <i class="fas fa-cubes" style="font-size: 3rem; color: var(--brand-amber); margin-bottom: 1rem;"></i>
+                <h3 style="font-family: 'Fira Code'; color: white;">MODULAR</h3>
+                <p class="card-text" style="margin-top: 10px;">Arquitetura plug-and-play.</p>
+            </div>
+            <div class="grid-card card-large reveal">
+                <h2 class="card-title" style="color: white;">Funcionalidades</h2>
+                <ul style="color: #ccc; line-height: 1.8; margin-left: 20px;">
+                    <li><strong>Comandos:</strong> Biblioteca pessoal de comandos (Crie, Edite, Veja e Apague seus comandos).</li>
+                    <li><strong>CriptoView:</strong> Monitoramento em tempo real de ativos via API pública.</li>
+                </ul>
+            </div>
+            <div class="grid-card card-full reveal">
+                <h2 class="card-title">Tech Stack</h2>
+                <div class="tech-panel">
+                    <div class="tech-chip">HTML5 / CSS3</div>
+                    <div class="tech-chip">Electron</div>
+                    <div class="tech-chip">CoinGecko API</div>
+                    <div class="tech-chip">Local Storage</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section reveal">
+            <h2 style="font-family: 'Archivo Black'; font-size: 2rem; margin-bottom: 1rem;">Automatize</h2>
+            <p style="color: #ccc; margin-bottom: 2rem;">Tenha seu próprio canivete suíço.</p>
+            <a href="https://wa.me/5564992517417" target="_blank" class="neon-button">
+                <i class="fab fa-whatsapp"></i> Solicitar Demo
+            </a>
+        </section>
+
+        <footer> JEAN FRAUZINO &copy; 2026 </footer>
+    </div>
+
+    <script>
+        // --- LÓGICA DO SISTEMA OPERACIONAL ---
+        const launcher = document.getElementById('launcher-view');
+        const homeBtn = document.getElementById('home-btn');
+        let currentApp = null;
+
+        function openApp(appId) {
+            launcher.classList.add('hidden');
+            homeBtn.classList.add('visible');
+            const appScreen = document.getElementById(`app-${appId}`);
+            if (appScreen) {
+                appScreen.classList.add('active');
+                currentApp = appScreen;
+            }
+        }
+
+        function goHome() {
+            launcher.classList.remove('hidden');
+            homeBtn.classList.remove('visible');
+            if (currentApp) {
+                currentApp.classList.remove('active');
+                currentApp = null;
+            }
+        }
+
+        // --- ENGINE GRÁFICA ---
+        const canvas = document.getElementById('code-wall'); const ctx = canvas.getContext('2d');
+        const chars = '0123456789ABCDEF<>[]{}/\\*!@#$'; const charArray = chars.split('');
+        let fontSize = 16, columns, rows, drops = [], trail = [], trailLength = 20;
+
+        function initBG() {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            columns = Math.ceil(canvas.width / fontSize); rows = Math.ceil(canvas.height / fontSize);
+            drops = []; for (let x = 0; x < columns; x++) { drops[x] = []; for (let y = 0; y < rows; y++) { drops[x][y] = { char: charArray[Math.floor(Math.random() * charArray.length)] }; } }
+        }
+        let mouse = { x: -1000, y: -1000 };
+        window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; trail.unshift({x: mouse.x, y: mouse.y}); if(trail.length > trailLength) trail.pop(); });
+
+        function drawBG() {
+            ctx.fillStyle = '#020202'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < trail.length; i++) { const pos = trail[i]; const ratio = 1 - (i / trailLength); const size = 50 * ratio; const opacity = ratio * 0.15; ctx.beginPath(); ctx.shadowBlur = 20; ctx.shadowColor = "rgba(255, 174, 0, 1)"; ctx.fillStyle = `rgba(255, 174, 0, ${opacity})`; ctx.arc(pos.x, pos.y, size, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0; }
+            ctx.font = fontSize + 'px "Fira Code", monospace'; ctx.textBaseline = 'top';
+            for (let x = 0; x < columns; x++) { for (let y = 0; y < rows; y++) { const cell = drops[x][y]; const posX = x * fontSize; const posY = y * fontSize; const dx = mouse.x - posX; const dy = mouse.y - posY; const dist = Math.sqrt(dx*dx + dy*dy); if (dist < 120) { if (Math.random() > 0.7) cell.char = charArray[Math.floor(Math.random() * charArray.length)]; if (dist < 40) ctx.fillStyle = '#ffffff'; else ctx.fillStyle = '#ffae00'; } else { if (Math.random() > 0.995) cell.char = charArray[Math.floor(Math.random() * charArray.length)]; ctx.fillStyle = '#1a1500'; } ctx.fillText(cell.char, posX, posY); } }
+            requestAnimationFrame(drawBG);
+        }
+        window.addEventListener('resize', initBG); initBG(); drawBG();
+
+        const observer = new IntersectionObserver((entries) => { entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('active'); else entry.target.classList.remove('active'); }); }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        
+        // --- CORREÇÃO DO PERCENTUAL ---
+        const progressBar = document.getElementById('reading-progress');
+        const logText = document.getElementById('log-text');
+        const logPercent = document.getElementById('log-percent'); // Pegando o elemento
+
+        window.addEventListener('scroll', () => {
+            let scrollTop = document.documentElement.scrollTop;
+            let docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            let scrollPercent = (scrollTop / docHeight) * 100;
+            
+            progressBar.style.width = scrollPercent + '%';
+            
+            // Atualiza o texto do percentual
+            if (logPercent) {
+                logPercent.innerText = Math.round(scrollPercent) + '%';
+            }
+
+            if (scrollPercent < 10) { logText.innerText = "MODULE: READY"; logText.style.color = "#ffae00"; }
+            else if (scrollPercent < 70) { logText.innerText = "EXEC: SCRIPT"; logText.style.color = "#ffffff"; }
+            else { logText.innerText = "STATUS: DONE"; logText.style.color = "#ffae00"; }
+        });
+
+        const cursorDot = document.querySelector('.cursor-dot'); const cursorOutline = document.querySelector('.cursor-outline');
+        window.addEventListener('mousemove', (e) => { cursorDot.style.left = `${e.clientX}px`; cursorDot.style.top = `${e.clientY}px`; cursorOutline.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 500, fill: "forwards" }); });
+        document.querySelectorAll('a, button, .app-card, .sys-home-btn').forEach(el => { el.addEventListener('mouseenter', () => document.body.classList.add('hovering')); el.addEventListener('mouseleave', () => document.body.classList.remove('hovering')); });
+
+        const transitionEl = document.querySelector('.page-transition');
+        window.onload = () => setTimeout(() => transitionEl.style.opacity = 0, 100);
+        document.querySelectorAll('a').forEach(anchor => { anchor.addEventListener('click', function(e) { if (this.getAttribute('href').startsWith('http') || this.target === '_blank') return; e.preventDefault(); transitionEl.style.opacity = 1; setTimeout(() => window.location.href = this.getAttribute('href'), 800); }); });
+    </script>
+</body>
+</html>
