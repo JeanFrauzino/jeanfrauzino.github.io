@@ -19,8 +19,9 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
+        body, a, button { cursor: none; } /* Cursor Tático */
 
-        /* SCROLLBAR NEON */
+        /* SCROLLBAR NEON GLOBAL */
         ::-webkit-scrollbar { width: 8px; background: #050505; }
         ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); border-left: 1px solid rgba(255,255,255,0.05); }
         ::-webkit-scrollbar-thumb { background: var(--brand-blue); border-radius: 4px; box-shadow: 0 0 15px var(--brand-blue); border: 1px solid rgba(255,255,255,0.5); }
@@ -34,12 +35,16 @@
             min-height: 100vh;
         }
 
+        /* UTILS */
+        .cursor-dot { width: 8px; height: 8px; background: var(--brand-blue); position: fixed; top: 0; left: 0; border-radius: 50%; pointer-events: none; z-index: 99999; transform: translate(-50%, -50%); }
+        .cursor-outline { width: 40px; height: 40px; border: 1px solid rgba(255, 255, 255, 0.5); position: fixed; top: 0; left: 0; border-radius: 50%; pointer-events: none; z-index: 99998; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, background 0.2s; }
+        body.hovering .cursor-outline { width: 60px; height: 60px; background: rgba(0, 242, 255, 0.1); border-color: var(--brand-blue); }
+        .page-transition { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #020202; z-index: 10000; pointer-events: none; opacity: 1; transition: opacity 0.8s ease-in-out; }
+
         /* WIDGETS */
         #reading-progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--brand-blue); z-index: 9999; width: 0%; box-shadow: 0 0 20px var(--brand-blue); transition: width 0.1s; }
         #system-log { position: fixed; bottom: 30px; right: 30px; background: rgba(0,0,0,0.8); border: 1px solid var(--brand-blue); padding: 10px 20px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.8rem; color: var(--brand-blue); z-index: 1000; box-shadow: 0 0 20px rgba(0, 242, 255, 0.1); display: flex; gap: 15px; align-items: center; backdrop-filter: blur(5px); transition: 0.3s; }
-        #system-log:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(0, 242, 255, 0.3); }
-        .log-icon { animation: spin 4s linear infinite; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .log-icon { animation: spin 4s linear infinite; } @keyframes spin { 100% { transform: rotate(360deg); } }
 
         /* AMBIENTE */
         #code-wall { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background: #020202; }
@@ -56,33 +61,118 @@
         .project-meta { font-family: 'Fira Code', monospace; color: var(--brand-pink); margin-bottom: 1rem; font-size: 0.9rem; letter-spacing: 2px; }
         .project-title { font-family: 'Archivo Black', sans-serif; font-size: clamp(5rem, 12vw, 10rem); line-height: 0.8; color: white; text-transform: uppercase; margin-bottom: 1rem; position: relative; z-index: 2; text-shadow: 10px 10px 0px rgba(255,255,255,0.05); mix-blend-mode: difference; }
 
-        /* --- NOVO CSS DO TYPEWRITER --- */
-        .project-typewriter {
-            display: inline-block;
-            overflow: hidden;
-            border-right: 3px solid var(--brand-blue);
-            white-space: nowrap;
-            margin: 0 auto 3rem auto; /* Margem inferior para afastar das telas */
-            font-family: 'Fira Code', monospace;
-            font-size: clamp(0.9rem, 2vw, 1.2rem);
-            color: var(--brand-blue);
-            letter-spacing: 2px;
-            max-width: 0;
-            animation: typing 3.5s steps(40, end) forwards, blink-caret .75s step-end infinite;
-            animation-delay: 0.5s;
-        }
+        .project-typewriter { display: inline-block; overflow: hidden; border-right: 3px solid var(--brand-blue); white-space: nowrap; margin: 0 auto 3rem auto; font-family: 'Fira Code', monospace; font-size: clamp(0.9rem, 2vw, 1.2rem); color: var(--brand-blue); letter-spacing: 2px; max-width: 0; animation: typing 3.5s steps(40, end) forwards, blink-caret .75s step-end infinite; animation-delay: 0.5s; }
+        @keyframes typing { from { max-width: 0 } to { max-width: 100% } } @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: var(--brand-blue); } }
 
-        @keyframes typing { from { max-width: 0 } to { max-width: 100% } }
-        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: var(--brand-blue); } }
-
-
-        /* DUAL SHOWCASE */
+        /* DUAL SHOWCASE (INTERATIVO COM SCROLL) */
         .dual-showcase { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; max-width: 1400px; margin: 0 auto 5rem auto; padding: 0 2rem; perspective: 1000px; }
-        .screen-frame { position: relative; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background-size: cover; background-position: center; box-shadow: 0 30px 60px -10px rgba(0,0,0,0.8); transition: transform 0.3s ease; overflow: hidden; }
+        
+        .screen-frame {
+            position: relative; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);
+            /* O background-size aqui é para a tela principal que usa bg image */
+            background-size: cover; background-position: center; 
+            box-shadow: 0 30px 60px -10px rgba(0,0,0,0.8);
+            transition: transform 0.3s ease; overflow: hidden;
+            cursor: pointer; /* Indica clique */
+        }
+        
+        .expand-icon {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            font-size: 3rem; color: white; z-index: 20; opacity: 0; transition: 0.3s;
+            text-shadow: 0 0 20px black; pointer-events: none; /* Deixa clicar através */
+        }
+        .screen-frame:hover .expand-icon { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+
         .screen-main { height: 65vh; transform: rotateY(5deg) translateX(10px); border: 1px solid rgba(0, 242, 255, 0.2); }
-        .screen-vertical { height: 65vh; transform: rotateY(-5deg) translateX(-10px) translateZ(20px); border: 1px solid rgba(255, 0, 119, 0.3); z-index: 5; }
+        
+        /* TELA VERTICAL COM SCROLL PREVIEW */
+        .screen-vertical { 
+            height: 65vh; transform: rotateY(-5deg) translateX(-10px) translateZ(20px); 
+            border: 1px solid rgba(255, 0, 119, 0.3); z-index: 5;
+            overflow-y: auto; /* Habilita scroll no preview */
+            scrollbar-width: thin; scrollbar-color: var(--brand-pink) #000;
+        }
+        /* Scrollbar exclusiva do card preview */
+        .screen-vertical::-webkit-scrollbar { width: 6px; }
+        .screen-vertical::-webkit-scrollbar-thumb { background: var(--brand-pink); border-radius: 3px; }
+        .screen-vertical::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); }
+
         .screen-frame:hover { transform: rotateY(0) scale(1.02) translateZ(30px); box-shadow: 0 0 50px rgba(0, 242, 255, 0.2); z-index: 10; border-color: white; }
-        .screen-label { position: absolute; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 5px 15px; font-family: 'Fira Code'; font-size: 0.8rem; color: white; border-left: 3px solid var(--brand-blue); }
+        
+        /* Label flutuante */
+        .screen-label { position: sticky; bottom: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 5px 15px; font-family: 'Fira Code'; font-size: 0.8rem; color: white; border-left: 3px solid var(--brand-blue); display: inline-block; margin-left: 20px; margin-bottom: 20px; }
+
+        /* DICA DE SCROLL (Mãozinha) */
+        .scroll-hint-preview {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            pointer-events: none; opacity: 1; transition: opacity 0.5s;
+            background: rgba(0,0,0,0.6); padding: 15px; border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(4px); z-index: 15;
+        }
+        .screen-vertical:hover .scroll-hint-preview { opacity: 0; }
+        .hand-icon { font-size: 1.5rem; color: white; margin-bottom: 5px; animation: scroll-gesture 1.5s infinite; }
+        @keyframes scroll-gesture { 0% { transform: translateY(0); opacity: 1; } 50% { transform: translateY(15px); opacity: 1; } 100% { transform: translateY(15px); opacity: 0; } }
+        .hint-text { font-family: 'Fira Code', monospace; font-size: 0.7rem; color: var(--brand-pink); text-transform: uppercase; margin-top: 5px; }
+
+        .long-image { width: 100%; display: block; height: auto; }
+
+
+        /* --- MODAL DE EXPANSÃO --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); backdrop-filter: blur(15px);
+            z-index: 10000; opacity: 0; pointer-events: none;
+            transition: opacity 0.5s; display: flex; align-items: center; justify-content: center;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-container {
+            width: 90%; max-width: 1400px; height: 80vh;
+            display: flex; gap: 40px; align-items: center;
+            opacity: 0; transform: scale(0.9); transition: 0.5s ease 0.2s;
+        }
+        .modal-overlay.active .modal-container { opacity: 1; transform: scale(1); }
+        .modal-container.reverse-layout { flex-direction: row-reverse; }
+
+        .modal-img-box {
+            flex: 1; height: 100%; border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--brand-blue); box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            position: relative; background: #050505;
+        }
+        
+        .modal-img-box img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+        /* MODO SCROLL NO MODAL */
+        .modal-img-box.scroll-mode { overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--brand-pink) #000; }
+        .modal-img-box.scroll-mode::-webkit-scrollbar { width: 6px; }
+        .modal-img-box.scroll-mode::-webkit-scrollbar-thumb { background: var(--brand-pink); }
+        .modal-img-box.scroll-mode img { width: 100%; height: auto; object-fit: cover; }
+
+        /* Dica de Scroll dentro do Modal */
+        .modal-scroll-hint {
+            position: absolute; bottom: 30px; right: 30px;
+            background: rgba(0,0,0,0.8); border: 1px solid var(--brand-pink);
+            color: var(--brand-pink); padding: 10px; border-radius: 50%;
+            z-index: 50; display: none; pointer-events: none; animation: bounce 2s infinite;
+        }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+        .modal-info-box {
+            flex: 1; padding: 2rem; color: white;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .modal-title { font-family: 'Archivo Black'; font-size: 3rem; text-transform: uppercase; margin-bottom: 1rem; color: var(--brand-blue); }
+        .modal-desc { font-family: 'Inter'; font-size: 1.1rem; line-height: 1.8; color: #ccc; white-space: pre-line; }
+
+        .close-modal {
+            position: absolute; top: 30px; right: 30px; font-size: 2rem; color: white; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2); width: 50px; height: 50px;
+            display: flex; align-items: center; justify-content: center; border-radius: 50%;
+            transition: 0.3s; z-index: 200;
+        }
+        .close-modal:hover { background: var(--brand-blue); color: black; border-color: var(--brand-blue); }
+
 
         /* GRID BENTO */
         .info-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; max-width: 1400px; margin: 0 auto 5rem auto; padding: 0 2rem; }
@@ -105,143 +195,122 @@
         .reveal { opacity: 0; transform: translateY(50px); transition: 0.8s ease; }
         .reveal.active { opacity: 1; transform: translateY(0); }
 
-        @media (max-width: 900px) { .dual-showcase { grid-template-columns: 1fr; gap: 40px; } .screen-main, .screen-vertical { height: 40vh; transform: none; } .card-large, .card-small { grid-column: span 12; } .project-title { font-size: 4rem; } #system-log { display: none; } }
+        @media (max-width: 900px) { 
+            .dual-showcase { grid-template-columns: 1fr; gap: 40px; } 
+            .screen-main, .screen-vertical { height: 40vh; transform: none; } 
+            .card-large, .card-small { grid-column: span 12; } 
+            .project-title { font-size: 4rem; } 
+            #system-log { display: none; }
+            .modal-container { flex-direction: column !important; height: 90vh; overflow-y: auto; }
+            .modal-img-box { height: 40vh; width: 100%; flex: none; }
+            .modal-info-box { padding: 1rem; }
+        }
         footer { text-align: center; margin-top: 5rem; color: #444; font-family: 'Fira Code'; }
 
-
-        /* --- ATUALIZAÇÃO PARA SCROLL INTERNO --- */
-
-.screen-frame {
-    position: relative;
-    border-radius: 12px;
-    border: 1px solid rgba(255,255,255,0.2);
-    /* Removemos o background-image daqui, ele vai para um elemento filho */
-    box-shadow: 0 30px 60px -10px rgba(0,0,0,0.8);
-    transition: transform 0.3s ease, border-color 0.3s;
-    overflow: hidden; /* Importante para esconder o que passa do tamanho */
+        /* --- CTA SECTION (CHAMADA PARA AÇÃO - AZUL) --- */
+.cta-section {
+    text-align: center;
+    margin: 6rem auto 2rem auto;
+    padding: 4rem 2rem;
+    max-width: 800px;
+    background: radial-gradient(circle, rgba(0, 242, 255, 0.05) 0%, transparent 70%);
 }
 
-/* TELA PRINCIPAL (Mantém fixa ou também pode ter scroll se quiser) */
-.screen-main {
-    height: 65vh;
-    transform: rotateY(5deg) translateX(10px);
-    border: 1px solid rgba(0, 242, 255, 0.2);
-    /* Mantemos background aqui se essa tela couber certinho,
-       mas para padronizar, vamos usar a img interna em ambas */
+.neon-button {
+    display: inline-flex; align-items: center; gap: 15px;
+    padding: 1.5rem 3rem;
+    background: transparent;
+    border: 2px solid var(--brand-blue);
+    color: var(--brand-blue);
+    font-family: 'Fira Code', monospace;
+    font-weight: bold; font-size: 1.2rem;
+    text-transform: uppercase; text-decoration: none;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
 }
 
-/* TELA VERTICAL (Onde vai ter o scroll) */
-.screen-vertical {
-    height: 65vh;
-    transform: rotateY(-5deg) translateX(-10px) translateZ(20px);
-    border: 1px solid rgba(255, 0, 119, 0.3);
-    z-index: 5;
-    /* Habilita o scroll vertical */
-    overflow-y: auto; 
-    /* Esconde a barra de rolagem padrão para ficar mais bonito */
-    scrollbar-width: thin; 
-    scrollbar-color: var(--brand-pink) #000;
-}
-
-/* Estilo da barra de rolagem específica dessa caixa */
-.screen-vertical::-webkit-scrollbar { width: 6px; }
-.screen-vertical::-webkit-scrollbar-thumb { background: var(--brand-pink); border-radius: 3px; }
-.screen-vertical::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); }
-
-
-/* A IMAGEM LONGA DENTRO DO SCROLL */
-.long-image {
-    width: 100%;
-    display: block;
-    height: auto; /* Altura automática para respeitar a proporção */
+.neon-button:hover {
+    background: var(--brand-blue);
+    color: black;
+    box-shadow: 0 0 60px var(--brand-blue);
+    transform: scale(1.05);
 }
 
 
-/* --- DICA VISUAL DE SCROLL (O AVISO) --- */
-.scroll-hint {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    pointer-events: none; /* Deixa o clique passar para o scroll funcionar */
-    opacity: 1;
-    transition: opacity 0.5s;
-    background: rgba(0,0,0,0.6);
-    padding: 15px; border-radius: 50%;
-    border: 1px solid rgba(255,255,255,0.2);
-    backdrop-filter: blur(4px);
-    z-index: 20;
-}
-
-/* Quando passar o mouse ou rolar, a dica some */
-.screen-vertical:hover .scroll-hint {
-    opacity: 0;
-}
-
-.hand-icon {
-    font-size: 1.5rem; color: white; margin-bottom: 5px;
-    animation: scroll-gesture 1.5s infinite;
-}
-
-@keyframes scroll-gesture {
-    0% { transform: translateY(0); opacity: 1; }
-    50% { transform: translateY(15px); opacity: 1; }
-    100% { transform: translateY(15px); opacity: 0; }
-}
-
-.hint-text {
-    font-family: 'Fira Code', monospace; font-size: 0.7rem; color: var(--brand-pink);
-    text-transform: uppercase; margin-top: 5px;
-}
     </style>
 </head>
 <body>
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+    <div class="page-transition"></div>
 
     <canvas id="code-wall"></canvas>
     <div class="noise-overlay"></div>
     
     <div id="reading-progress"></div>
-    
     <div id="system-log">
         <i class="fas fa-circle-notch log-icon"></i>
         <span id="log-text">SYSTEM: INITIALIZING...</span>
         <span id="log-percent" style="color: white; font-weight: bold;">0%</span>
     </div>
 
+    <div class="modal-overlay" id="detail-modal">
+        <div class="close-modal" onclick="closeModal()"><i class="fas fa-times"></i></div>
+        <div class="modal-container" id="modal-content-box">
+            
+            <div class="modal-img-box" id="modal-box-style">
+                <img id="modal-img" src="" alt="Detalhe">
+                
+                <div class="modal-scroll-hint" id="modal-scroll-hint">
+                    <i class="fas fa-arrow-down"></i>
+                </div>
+            </div>
+
+            <div class="modal-info-box">
+                <h2 class="modal-title" id="modal-title">TITULO</h2>
+                <div class="modal-desc" id="modal-desc">Descrição...</div>
+            </div>
+
+        </div>
+    </div>
+
     <div class="content-wrapper">
         <nav class="nav-bar">
             <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> HUB</a>
-            <div style="font-family: 'Fira Code'; color: #666;">BUILD.V.2.1 (PRO)</div>
+            <div style="font-family: 'Fira Code'; color: #666;">BUILD.V.1.0 (LEGACY)</div>
         </nav>
 
         <header class="project-header">
             <div class="project-meta">// ELECTRON DESKTOP APP</div>
             <h1 class="project-title">SIAJ</h1>
-            
             <div class="project-typewriter">
-                > ANÁLISE INTELIGENTE DO DIÁRIO DA JUSTIÇA TJ-GO;
+                > SYSTEM.INIT(INTELLIGENCE_AUTOMATION_JURIDICAL);
             </div>
         </header>
 
         <section class="dual-showcase">
-    
-    <div class="screen-frame screen-main" style="background-image: url('assets/siaj-dashboard.png'); background-size: cover;">
-        <div class="screen-label">MAIN_INTERFACE</div>
-    </div>
+            
+            <div class="screen-frame screen-main" style="background-image: url('assets/siaj-dashboard2.png');" onclick="openModal('main')">
+                <i class="fas fa-expand-alt expand-icon"></i>
+                <div class="screen-label">MAIN_INTERFACE</div>
+            </div>
 
-    <div class="screen-frame screen-vertical">
-        
-        <div class="scroll-hint">
-            <i class="fas fa-hand-pointer hand-icon"></i>
-            <span class="hint-text">Scroll</span>
-        </div>
+            <div class="screen-frame screen-vertical" onclick="openModal('settings')">
+                
+                <div class="scroll-hint-preview">
+                    <i class="fas fa-hand-pointer hand-icon"></i>
+                    <span class="hint-text">Scroll</span>
+                </div>
 
-        <img src="assets/siaj-config.png" class="long-image" alt="Configurações">
-        
-        <div class="screen-label" style="border-color: var(--brand-pink); position: sticky; bottom: 20px;">SETTINGS_PANEL</div>
-    </div>
+                <img src="assets/siaj-config.png" class="long-image" alt="Configurações">
 
-</section>
+                <div class="screen-label" style="border-color: var(--brand-pink);">SETTINGS_PANEL</div>
+                
+                <i class="fas fa-expand-alt expand-icon"></i>
+            </div>
+        </section>
 
         <section class="info-grid">
             
@@ -249,8 +318,7 @@
                 <div>
                     <h2 class="card-title" style="color: var(--brand-pink);">O Problema</h2>
                     <p class="card-text">
-                        A rotina era travada por um trabalho manual que tomava muito tempo do operador. 
-                        A necessidade de baixar arquivos, analisar localmente e enviar por email manualmente, criava um fluxo ineficiente e propenso a baixa acertividade.
+                        A rotina era travada por um trabalho manual que tomava muito tempo do operador. A necessidade de baixar arquivos, analisar localmente e enviar por email manualmente, criava um fluxo ineficiente e propenso a baixa acertividade.
                     </p>
                 </div>
                 <div style="margin-top: 2rem; font-family: 'Fira Code'; color: var(--brand-pink);"> > STATUS: CRITICAL_BOTTLENECK</div>
@@ -284,87 +352,132 @@
                     <div class="tech-chip">Node.js (Backend Local)</div>
                     <div class="tech-chip">Vanilla JS / ES6</div>
                     <div class="tech-chip">HTML5 & CSS3</div>
-                    <div class="tech-chip">WhatsApp (API)</div>
-                    <div class="tech-chip">Gemini Pro (API)</div>
+                    <div class="tech-chip">PDF-Lib (Manipulação)</div>
+                    <div class="tech-chip">LowDB (JSON Database)</div>
+                    <div class="tech-chip">IPC Main/Renderer</div>
                 </div>
             </div>
         </section>
+
+
+
+        <section class="cta-section reveal">
+    <h2 style="font-family: 'Archivo Black'; font-size: 2rem; margin-bottom: 1rem; color: white;">
+        Pronto para Otimizar?
+    </h2>
+    <p style="color: #ccc; margin-bottom: 2rem; font-size: 1.1rem;">
+        O SIAJ foi desenhado para eliminar gargalos operacionais. Agende uma apresentação técnica e veja a diferença.
+    </p>
+    
+    <a href="https://wa.me/5564992517417?text=Olá%20Jean,%20vi%20o%20projeto%20SIAJ%20no%20seu%20portfólio%20e%20gostaria%20de%20uma%20demonstração." target="_blank" class="neon-button">
+        <i class="fab fa-whatsapp"></i> Solicitar Demo
+    </a>
+</section>
 
         <footer> JEAN FRAUZINO &copy; 2026 <br> MIGRATING TO WEB... SOON </footer>
     </div>
 
     <script>
-        // 1. ENGINE GRÁFICA: PAREDE DIGITAL + RASTRO (IGUAL À HOME)
-        const canvas = document.getElementById('code-wall');
-        const ctx = canvas.getContext('2d');
-        const chars = '0123456789ABCDEF<>[]{}/\\*!@#$';
-        const charArray = chars.split('');
-        
-        let fontSize = 16;
-        let columns, rows;
-        let drops = []; // Grade de letras
-        let trail = []; // Rastro do mouse
-        const trailLength = 20;
+        // --- 1. DADOS DOS MODAIS ---
+        const modalData = {
+            'main': {
+                title: "Interface Principal",
+                desc: "O Coração do SIAJ.\n\nEsta tela centraliza o fluxo de triagem notarial. Diferente de sistemas web, aqui temos acesso direto ao File System (fs), permitindo leitura instantânea de pastas locais e manipulação de PDFs em milissegundos.\n\nA interface foi desenhada com princípios de 'Zero Distração', utilizando temas escuros e contrastes neon para longas jornadas de trabalho sem fadiga visual.",
+                img: "assets/siaj-dashboard.png",
+                color: "var(--brand-blue)",
+                layout: "normal",
+                scrollable: false // Imagem cabe na tela
+            },
+            'settings': {
+                title: "Painel de Configuração",
+                desc: "Controle Granular do Sistema.\n\nNeste módulo vertical, o administrador pode configurar caminhos de rede, definir impressoras padrão para cada tipo de ato notarial e gerenciar as macros de automação.\n\nAqui também reside o log do sistema (LowDB), permitindo auditoria completa de todas as ações realizadas pelos escreventes.",
+                img: "assets/siaj-config.png",
+                color: "var(--brand-pink)",
+                layout: "reverse",
+                scrollable: true // ATIVA O SCROLL INTERNO PARA A FOTO VERTICAL (MODAL)
+            }
+        };
+
+        // --- LÓGICA DO MODAL COM SCROLL ---
+        const modal = document.getElementById('detail-modal');
+        const modalContent = document.getElementById('modal-content-box');
+        const modalImg = document.getElementById('modal-img');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDesc = document.getElementById('modal-desc');
+        const modalBoxStyle = document.getElementById('modal-box-style');
+        const scrollHint = document.getElementById('modal-scroll-hint');
+
+        function openModal(type) {
+            const data = modalData[type];
+            modalImg.src = data.img;
+            modalTitle.innerText = data.title;
+            modalTitle.style.color = data.color;
+            modalDesc.innerText = data.desc;
+            modalBoxStyle.style.borderColor = data.color;
+
+            // Layout Reverso?
+            if (data.layout === 'reverse') {
+                modalContent.classList.add('reverse-layout');
+            } else {
+                modalContent.classList.remove('reverse-layout');
+            }
+
+            // Scroll Interno?
+            if (data.scrollable) {
+                modalBoxStyle.classList.add('scroll-mode');
+                scrollHint.style.display = 'block'; // Mostra dica
+                scrollHint.style.borderColor = data.color;
+                scrollHint.style.color = data.color;
+            } else {
+                modalBoxStyle.classList.remove('scroll-mode');
+                scrollHint.style.display = 'none'; // Esconde dica
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+
+        // --- ENGINE GRÁFICA (MESMA DA HOME - AZUL/CIANO) ---
+        const canvas = document.getElementById('code-wall'); const ctx = canvas.getContext('2d');
+        const chars = '0123456789ABCDEF<>[]{}/\\*!@#$'; const charArray = chars.split('');
+        let fontSize = 16, columns, rows, drops = [], trail = [], trailLength = 20;
 
         function initBG() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            columns = Math.ceil(canvas.width / fontSize);
-            rows = Math.ceil(canvas.height / fontSize);
-            
-            drops = [];
-            for (let x = 0; x < columns; x++) {
-                drops[x] = [];
-                for (let y = 0; y < rows; y++) {
-                    drops[x][y] = { char: charArray[Math.floor(Math.random() * charArray.length)] };
-                }
-            }
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            columns = Math.ceil(canvas.width / fontSize); rows = Math.ceil(canvas.height / fontSize);
+            drops = []; for (let x = 0; x < columns; x++) { drops[x] = []; for (let y = 0; y < rows; y++) { drops[x][y] = { char: charArray[Math.floor(Math.random() * charArray.length)] }; } }
         }
 
         let mouse = { x: -1000, y: -1000 };
         window.addEventListener('mousemove', (e) => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-            trail.unshift({x: mouse.x, y: mouse.y});
-            if(trail.length > trailLength) trail.pop();
+            mouse.x = e.clientX; mouse.y = e.clientY;
+            trail.unshift({x: mouse.x, y: mouse.y}); if(trail.length > trailLength) trail.pop();
         });
 
         function drawBG() {
-            // Limpa o canvas
-            ctx.fillStyle = '#020202';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // A. RASTRO
+            ctx.fillStyle = '#020202'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Rastro Azul
             for (let i = 0; i < trail.length; i++) {
-                const pos = trail[i];
-                const ratio = 1 - (i / trailLength);
-                const size = 50 * ratio; 
-                const opacity = ratio * 0.15;
-                ctx.beginPath();
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = "rgba(0, 242, 255, 1)";
+                const pos = trail[i]; const ratio = 1 - (i / trailLength);
+                const size = 50 * ratio; const opacity = ratio * 0.15;
+                ctx.beginPath(); ctx.shadowBlur = 20; ctx.shadowColor = "rgba(0, 242, 255, 1)";
                 ctx.fillStyle = `rgba(0, 242, 255, ${opacity})`;
-                ctx.arc(pos.x, pos.y, size, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.shadowBlur = 0;
+                ctx.arc(pos.x, pos.y, size, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
             }
-
-            // B. GRADE FIXA
-            ctx.font = fontSize + 'px "Fira Code", monospace';
-            ctx.textBaseline = 'top';
-
+            // Grade
+            ctx.font = fontSize + 'px "Fira Code", monospace'; ctx.textBaseline = 'top';
             for (let x = 0; x < columns; x++) {
                 for (let y = 0; y < rows; y++) {
-                    const cell = drops[x][y];
-                    const posX = x * fontSize;
-                    const posY = y * fontSize;
-
-                    const dx = mouse.x - posX;
-                    const dy = mouse.y - posY;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-                    const isHover = dist < 120;
-
-                    if (isHover) {
+                    const cell = drops[x][y]; const posX = x * fontSize; const posY = y * fontSize;
+                    const dx = mouse.x - posX; const dy = mouse.y - posY; const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 120) {
                         if (Math.random() > 0.7) cell.char = charArray[Math.floor(Math.random() * charArray.length)];
                         if (dist < 40) ctx.fillStyle = '#ffffff'; else ctx.fillStyle = '#00f2ff';
                     } else {
@@ -376,9 +489,7 @@
             }
             requestAnimationFrame(drawBG);
         }
-        window.addEventListener('resize', initBG);
-        initBG();
-        drawBG();
+        window.addEventListener('resize', initBG); initBG(); drawBG();
 
         // 2. SCROLL REVEAL & WIDGET LOGIC
         const observer = new IntersectionObserver((entries) => {
@@ -397,10 +508,9 @@
             let scrollTop = document.documentElement.scrollTop;
             let docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
             let scrollPercent = (scrollTop / docHeight) * 100;
+            progressBar.style.width = scrollPercent + '%';
+            logPercent.innerText = Math.round(scrollPercent) + '%';
             
-            if(progressBar) progressBar.style.width = scrollPercent + '%';
-            if(logPercent) logPercent.innerText = Math.round(scrollPercent) + '%';
-
             if(logText) {
                 if (scrollPercent < 10) { logText.innerText = "SYSTEM: STANDBY"; logText.style.color = "#00f2ff"; }
                 else if (scrollPercent < 40) { logText.innerText = "ACCESSING: DASHBOARD"; logText.style.color = "#ffffff"; }
@@ -408,6 +518,15 @@
                 else { logText.innerText = "STATUS: COMPLETE"; logText.style.color = "#00f2ff"; }
             }
         });
+
+        // 3. CURSOR & TRANSIÇÃO (Padrão)
+        const cursorDot = document.querySelector('.cursor-dot'); const cursorOutline = document.querySelector('.cursor-outline');
+        window.addEventListener('mousemove', (e) => { cursorDot.style.left = `${e.clientX}px`; cursorDot.style.top = `${e.clientY}px`; cursorOutline.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 500, fill: "forwards" }); });
+        document.querySelectorAll('a, button, .screen-frame, .close-modal').forEach(el => { el.addEventListener('mouseenter', () => document.body.classList.add('hovering')); el.addEventListener('mouseleave', () => document.body.classList.remove('hovering')); });
+
+        const transitionEl = document.querySelector('.page-transition');
+        window.onload = () => setTimeout(() => transitionEl.style.opacity = 0, 100);
+        document.querySelectorAll('a').forEach(anchor => { anchor.addEventListener('click', function(e) { if (this.getAttribute('href').startsWith('http') || this.target === '_blank') return; e.preventDefault(); transitionEl.style.opacity = 1; setTimeout(() => window.location.href = this.getAttribute('href'), 800); }); });
     </script>
 </body>
 </html>
