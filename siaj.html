@@ -237,7 +237,10 @@
     transform: scale(1.05);
 }
 
-
+@keyframes blink-access {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
     </style>
 </head>
 <body>
@@ -279,7 +282,7 @@
     <div class="content-wrapper">
         <nav class="nav-bar">
             <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> HUB</a>
-            <div style="font-family: 'Fira Code'; color: #666;">BUILD.V.1.0 (LEGACY)</div>
+            <div style="font-family: 'Fira Code'; color: #666;">BUILD.V.1.1.6 (BETA)</div>
         </nav>
 
         <header class="project-header">
@@ -318,7 +321,7 @@
                 <div>
                     <h2 class="card-title" style="color: var(--brand-pink);">O Problema</h2>
                     <p class="card-text">
-                        A rotina era travada por um trabalho manual que tomava muito tempo do operador. A necessidade de baixar arquivos, analisar localmente e enviar por email manualmente, criava um fluxo ineficiente e propenso a baixa acertividade.
+                        A rotina era travada por um trabalho manual que tomava muito tempo do operador. A necessidade de baixar arquivos, analisar localmente e enviar por email manualmente, criava um fluxo ineficiente e propenso a baixa assertividade.
                     </p>
                 </div>
                 <div style="margin-top: 2rem; font-family: 'Fira Code'; color: var(--brand-pink);"> > STATUS: CRITICAL_BOTTLENECK</div>
@@ -336,25 +339,145 @@
             </div>
 
             <div class="grid-card card-large reveal">
-                <h2 class="card-title" style="color: var(--brand-blue);">A Solução (V1)</h2>
+                <h2 class="card-title" style="color: var(--brand-blue);">A Solução (V1.1.6)</h2>
                 <p class="card-text">
-                    O <strong>SIAJ Desktop</strong> nasceu para rodar nativamente. Utilizando o poder do Node.js no backend local, o sistema acessa o site do TJ-Go, baixa PDFs pesados instantaneamente, faz a análise, resumo e envio automático por email e WhatsApp.
-                </p>
-                <p class="card-text" style="margin-top: 10px;">
-                    Isso eliminou o tempo necessário para essa atividade e permitiu funcionalidades que um site comum não conseguiria fazer.
+                    O <strong>SIAJ Desktop</strong> nasceu para rodar nativamente. Utilizando o poder do Node.js no backend local, o sistema acessa o site do TJ-Go, baixa PDFs pesados instantaneamente, faz a análise, resumo e envio automático.
                 </p>
             </div>
 
-            <div class="grid-card card-full reveal">
-                <h2 class="card-title">Stack Atual (Legacy)</h2>
+
+            <div class="grid-card card-full reveal" style="border-top: 1px solid var(--brand-blue);">
+                <h2 class="card-title" style="text-align: center; color: white;">// CORE FLUX: DO CAOS À ORDEM</h2>
+            </div>
+
+            <div class="grid-card card-large reveal" style="background: linear-gradient(90deg, rgba(255,255,255,0.03), transparent);">
+                <h2 class="card-title" style="color: var(--brand-pink); font-size: 1.5rem;">1. A Fonte: DJE</h2>
+                <p class="card-text">
+                    O <strong>Diário da Justiça Eletrônico</strong> é um "Data Lake" não estruturado. Arquivos PDF com milhares de páginas, contendo intimações, sentenças e despachos misturados.
+                </p>
+                <div style="margin-top: 1.5rem; display: flex; gap: 15px; align-items: center;">
+                    <i class="fas fa-file-pdf" style="font-size: 2rem; color: #fff;"></i>
+                    <div style="font-family: 'Fira Code'; font-size: 0.8rem; color: #888;">
+                        > INPUT: .PDF (VECTOR/TEXT)<br>
+                        > VOLUME: ~60.000 PÁGINAS/DIA
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid-card card-small reveal">
+                <div style="font-family: 'Archivo Black'; color: var(--brand-blue); font-size: 3rem; line-height: 1;">REGEX</div>
+                <h3 style="font-family: 'Fira Code'; color: white; margin-top: 5px;">MINERADOR</h3>
+                <p class="card-text" style="margin-top: 10px; font-size: 0.9rem;">
+                    O sistema varre o arquivo bruto utilizando Expressões Regulares (Regex) complexas para identificar padrões:
+                </p>
+                <ul style="margin-top: 10px; list-style: none; color: #888; font-family: 'Fira Code'; font-size: 0.8rem;">
+                    <li>[x] Nomes de Advogados</li>
+                    <li>[x] CPF de Pessoas</li>
+                    <li>[x] Números de Processo</li>
+                    <li>[x] Termos Jurídicos Chave</li>
+                </ul>
+            </div>
+
+            <div class="grid-card card-small reveal">
+                <i class="fas fa-filter" style="font-size: 2.5rem; color: var(--brand-blue); margin-bottom: 1rem;"></i>
+                <h3 style="font-family: 'Fira Code'; color: white;">2. Triagem Lógica</h3>
+                <p class="card-text">
+                    Não basta achar o nome. O <strong>SIAJ</strong> analisa o contexto.
+                </p>
+                <p class="card-text" style="margin-top: 10px; font-size: 0.9rem; color: #aaa;">
+                    Ele diferencia uma "Intimação de Audiência" de uma simples "Suscitação de Dúvida", categorizando a urgência automaticamente.
+                </p>
+            </div>
+
+            <div class="grid-card card-large reveal" style="border-right: 3px solid var(--brand-blue);">
+                <h2 class="card-title" style="color: var(--brand-blue); font-size: 1.5rem;">3. Entrega (Delivery)</h2>
+                <p class="card-text">
+                    O resultado final não é apenas um dado, é uma <strong>Ação</strong>.
+                </p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 1.5rem;">
+                    <div>
+                        <h4 style="color: white; font-family: 'Fira Code'; margin-bottom: 5px;"><i class="fab fa-whatsapp"></i> Instantâneo</h4>
+                        <p style="font-size: 0.8rem; color: #888;">Alerta imediato no WhatsApp configurável, com o bloco de páginas relevantes e resumo do ato.</p>
+                    </div>
+                    <div>
+                        <h4 style="color: white; font-family: 'Fira Code'; margin-bottom: 5px;"><i class="fas fa-envelope"></i> Formal</h4>
+                        <p style="font-size: 0.8rem; color: #888;">Email com o PDF recortado (apenas as páginas relevantes) em anexo junto ao resumo do ato.</p>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="grid-card card-full reveal" style="border-top: 1px solid #00ff88; margin-top: 4rem;">
+                <h2 class="card-title" style="text-align: center; color: #00ff88;">// SECURITY CORE: DRM & LICENSING</h2>
+                <p style="text-align: center; color: #888; font-family: 'Fira Code'; margin-top: -10px;">PROTEÇÃO DE PROPRIEDADE INTELECTUAL</p>
+            </div>
+
+            <div class="grid-card card-large reveal" style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), transparent);">
+                <h2 class="card-title" style="color: white; font-size: 1.5rem;">Hardware Binding (HWID)</h2>
+                <p class="card-text">
+                    O sistema utiliza uma arquitetura de <strong>Fingerprint Digital</strong>. Ao ser instalado, o software escaneia a assinatura física da máquina (Placa-mãe, CPU e UUID do disco).
+                </p>
+                <p class="card-text" style="margin-top: 15px;">
+                    Isso gera um <strong>Hash Único</strong>. A licença só funciona naquela máquina específica. Se o usuário copiar a pasta para outro computador, o hash não bate e o sistema entra em modo de bloqueio imediato (Lockdown).
+                </p>
                 <div class="tech-panel">
-                    <div class="tech-chip">Electron</div>
-                    <div class="tech-chip">Node.js (Backend Local)</div>
-                    <div class="tech-chip">Vanilla JS / ES6</div>
-                    <div class="tech-chip">HTML5 & CSS3</div>
-                    <div class="tech-chip">PDF-Lib (Manipulação)</div>
-                    <div class="tech-chip">LowDB (JSON Database)</div>
-                    <div class="tech-chip">IPC Main/Renderer</div>
+                    <div class="tech-chip" style="border-color: #00ff88; color: #00ff88;">node-machine-id</div>
+                    <div class="tech-chip" style="border-color: #00ff88; color: #00ff88;">AES-256 Encryption</div>
+                    <div class="tech-chip" style="border-color: #00ff88; color: #00ff88;">Offline Validation</div>
+                </div>
+            </div>
+
+            <div class="grid-card card-small reveal" style="background: #000; border: 1px solid #333;">
+                <div style="font-family: 'Fira Code'; font-size: 0.7rem; color: #00ff88; line-height: 1.6;">
+                    <div>> INITIATING SECURITY CHECK...</div>
+                    <div style="color: #555;">> SCANNING HARDWARE ID...</div>
+                    <div id="terminal-hwid">ID: 8B92-F1A0-33C1 (MATCH)</div>
+                    <div style="color: #555;">> DECRYPTING LICENSE KEY...</div>
+                    <div style="margin-top: 10px; color: white; background: #00ff88; color: black; display: inline-block; padding: 2px 5px; font-weight: bold; animation: blink-access 2s infinite;">ACCESS GRANTED</div>
+                </div>
+                
+                <i class="fas fa-lock" style="position: absolute; bottom: -20px; right: -20px; font-size: 8rem; color: rgba(255,255,255,0.03);"></i>
+            </div>
+
+
+            <div class="grid-card card-full reveal" style="margin-top: 4rem; border-left: 5px solid var(--brand-blue);">
+                <h2 class="card-title" style="font-size: 1.5rem; color: #fff;">// UPDATE 1.1.6: ARQUITETURA DEVOPS</h2>
+                <p class="card-text" style="color: #888;">Implementação de ciclo CI/CD e automação avançada.</p>
+            </div>
+
+            <div class="grid-card card-small reveal" style="background: rgba(255, 0, 119, 0.05);">
+                <i class="fab fa-github" style="font-size: 3rem; color: var(--brand-pink); margin-bottom: 1rem;"></i>
+                <h3 style="font-family: 'Fira Code'; color: white;">AUTO UPDATER</h3>
+                <p class="card-text" style="margin-top: 10px;">
+                    Integração com <strong>GitHub Releases</strong>. O software detecta novas versões na nuvem, baixa o patch e atualiza silenciosamente (OTA) na máquina do cliente.
+                </p>
+            </div>
+
+            <div class="grid-card card-large reveal">
+                <h2 class="card-title" style="color: #00f2ff;">Engenharia Anti-Bloqueio</h2>
+                <p class="card-text">
+                    Para garantir o envio de mensagens em massa sem instabilidade, implementamos um <strong>Chromium Engine Isolado</strong> via <em>ASAR Unpack</em>.
+                </p>
+                <p class="card-text" style="margin-top: 15px;">
+                    Utilizamos técnicas de <strong>DOM Injection</strong> para manipular a interface do WhatsApp Web diretamente, contornando limitações de API e falhas de renderização.
+                </p>
+                <div style="margin-top: 1rem; font-family: 'Fira Code'; font-size: 0.8rem; color: var(--brand-blue);">
+                     > chromium.path.replace('app.asar', 'unpacked');
+                </div>
+            </div>
+
+            <div class="grid-card card-full reveal">
+                <h2 class="card-title">Tech Stack Completa</h2>
+                <div class="tech-panel">
+                    <div class="tech-chip">Electron v39</div>
+                    <div class="tech-chip">Node.js</div>
+                    <div class="tech-chip" style="border-color: var(--brand-pink); color: var(--brand-pink);">Electron Updater</div>
+                    <div class="tech-chip">GitHub Actions</div>
+                    <div class="tech-chip">Puppeteer Core</div>
+                    <div class="tech-chip">Chromium Embedded</div>
+                    <div class="tech-chip">PDF-Lib</div>
+                    <div class="tech-chip">LowDB</div>
+                    <div class="tech-chip">HTML5 / CSS3 Neon</div>
                 </div>
             </div>
         </section>
