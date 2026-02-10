@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jean Frauzino | Creative Dev</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fira+Code&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-color: #ffffff;
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --glass: rgba(255, 255, 255, 0.03);
+        }
+
+        /* --- MOUSE INVISÍVEL GLOBAL --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
+        
+        /* SCROLLBAR GERAL */
+        ::-webkit-scrollbar { width: 8px; background: #050505; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        ::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 4px; border: 1px solid rgba(255,255,255,0.5); }
+
+        body, html { 
+            height: 100%; overflow-x: hidden; background-color: var(--bg-color); font-family: 'Inter', sans-serif; 
+        }
+
+        /* --- 1. TRANSITION LAYER --- */
+        .page-transition {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #020202; z-index: 10000;
+            opacity: 1; pointer-events: none;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        /* EFEITO WARP (CARD MERGULHO) */
+        .card-3d.warping {
+            z-index: 99999 !important; /* Warp fica acima de quase tudo */
+            transition: all 1s cubic-bezier(0.7, 0, 0.3, 1) !important;
+            transform: scale(20) !important; opacity: 0; pointer-events: none;
+        }
+        body.warp-mode .hero-section, body.warp-mode .section-header, body.warp-mode .footer-grid, body.warp-mode .card-3d:not(.warping) {
+            opacity: 0; transform: scale(0.8); transition: 0.5s ease; filter: blur(10px);
+        }
+
+        /* --- 2. EFEITOS DE FUNDO --- */
+        #neural-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .scanline {
+            width: 100%; height: 100px; z-index: 10;
+            background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(255, 255, 255, 0.02) 50%, rgba(0,0,0,0) 100%);
+            opacity: 0.1; position: fixed; bottom: 100%; pointer-events: none;
+            animation: scanline 10s linear infinite;
+        }
+        @keyframes scanline { 0% { bottom: 100%; } 100% { bottom: -100%; } }
+        .vignette {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            box-shadow: 0 0 200px rgba(0,0,0,0.9) inset; pointer-events: none; z-index: 1;
+        }
+
+        /* --- CURSOR (CORREÇÃO Z-INDEX) --- */
+        /* Z-Index aumentado para 999999 para ficar acima do Modal */
+        .cursor-dot { 
+            width: 10px; height: 10px; background: white; box-shadow: 0 0 10px white; 
+            position: fixed; border-radius: 50%; pointer-events: none; 
+            z-index: 999999; /* CAMADA MÁXIMA */
+            transform: translate(-50%, -50%); mix-blend-mode: difference; 
+        }
+        .cursor-ring { 
+            position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
+            width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.5); border-radius: 50%; 
+            pointer-events: none; 
+            z-index: 999998; /* CAMADA MÁXIMA - 1 */
+            mix-blend-mode: difference;
+            transition: width 0.3s, height 0.3s, border-color 0.3s, background-color 0.3s; 
+        }
+        body.hovering .cursor-ring { width: 80px; height: 80px; border-color: var(--neon-blue); background: rgba(0, 243, 255, 0.1); }
+        body.hovering .cursor-dot { transform: translate(-50%, -50%) scale(0.5); }
+
+        .main-wrapper { position: relative; z-index: 2; padding: 2rem; min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* --- 3. HERO --- */
+        .hero-section { height: 35vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; margin-bottom: 2rem; }
+        .hacker-text {
+            font-family: 'Archivo Black', sans-serif; font-size: clamp(3rem, 9vw, 9rem);
+            color: white; text-transform: uppercase; line-height: 0.9; margin-bottom: 1rem; cursor: default;
+            position: relative; text-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .hacker-text:hover { text-shadow: 2px 2px 0px var(--neon-purple), -2px -2px 0px var(--neon-blue); }
+        .tagline-box { display: flex; gap: 10px; font-family: 'Fira Code', monospace; font-size: 0.8rem; color: #888; }
+        .tag { border: 1px solid rgba(255,255,255,0.1); padding: 5px 12px; border-radius: 20px; transition: 0.3s; background: rgba(0,0,0,0.5); }
+        .tag:hover { border-color: var(--neon-blue); color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
+
+        /* --- 4. GALERIA (ACCORDION DECK 3D) --- */
+        .section-header { text-align: center; margin: 4rem auto 2rem auto; width: 100%; }
+        .section-label {
+            font-family: 'Fira Code'; color: var(--neon-blue); font-size: 1rem; letter-spacing: 4px;
+            background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.1), transparent);
+            padding: 10px 30px; border-top: 1px solid rgba(0, 243, 255, 0.3); border-bottom: 1px solid rgba(0, 243, 255, 0.3);
+            text-transform: uppercase; display: inline-block;
+        }
+        .gallery-wrapper { display: flex; gap: 15px; height: 55vh; width: 100%; max-width: 1600px; margin: 0 auto; perspective: 1500px; }
+        .card-3d {
+            flex: 1; position: relative; border-radius: 12px; overflow: hidden;
+            transition: flex 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.4s;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.1);
+            background: #0a0a0a; transform-style: preserve-3d;
+        }
+        .card-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            opacity: 0.5; filter: grayscale(100%) contrast(1.2); transition: 0.6s;
+        }
+        .card-content {
+            position: absolute; bottom: 0; left: 0; width: 100%; padding: 2.5rem;
+            background: linear-gradient(to top, black 50%, transparent 100%);
+            opacity: 1; transform: translateY(0); z-index: 5; transition: 0.4s;
+        }
+        .card-num { font-family: 'Archivo Black'; font-size: 4rem; color: rgba(255,255,255,0.1); position: absolute; top: 10px; right: 20px; line-height: 1; text-shadow: 0 0 10px black; }
+        .card-title { font-family: 'Archivo Black'; font-size: 2.5rem; color: white; text-transform: uppercase; margin: 0; text-shadow: 0 10px 20px black; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-tech { font-family: 'Fira Code'; color: var(--neon-blue); font-size: 0.8rem; margin-top: 5px; display: block; text-shadow: 0 2px 5px black; opacity: 0; transform: translateY(10px); transition: 0.3s; }
+        
+        .card-3d:hover { flex: 3; border-color: rgba(255,255,255,0.8); box-shadow: 0 0 30px rgba(0, 243, 255, 0.1); z-index: 10; }
+        .card-3d:hover .card-bg { opacity: 1; filter: grayscale(0%); transform: scale(1.1); }
+        .card-3d:hover .card-tech { opacity: 1; transform: translateY(0); }
+
+        /* --- 5. FOOTER (PAINEL) --- */
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 20px; max-width: 1600px; margin: 2rem auto 0 auto; width: 100%; }
+        .hud-card {
+            background: rgba(15, 15, 20, 0.6); border: 1px solid rgba(255,255,255,0.1);
+            padding: 1.5rem; border-radius: 12px; position: relative;
+            display: flex; align-items: center; justify-content: space-between;
+            transition: 0.3s; text-decoration: none; backdrop-filter: blur(10px); cursor: pointer;
+        }
+        .hud-card.highlight-bio { background: rgba(20, 20, 30, 0.85); border: 1px solid var(--neon-blue); box-shadow: 0 0 20px rgba(0, 243, 255, 0.1); animation: border-pulse 3s infinite; position: relative; overflow: hidden; }
+        @keyframes border-pulse { 0% { border-color: rgba(0, 243, 255, 0.3); } 50% { border-color: rgba(0, 243, 255, 0.8); } 100% { border-color: rgba(0, 243, 255, 0.3); } }
+        .click-hint { position: absolute; top: 10px; right: 10px; font-family: 'Fira Code'; font-size: 0.7rem; color: var(--neon-blue); border: 1px solid var(--neon-blue); padding: 2px 6px; border-radius: 4px; background: rgba(0, 243, 255, 0.1); text-transform: uppercase; animation: blink-text 2s infinite; }
+        @keyframes blink-text { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        
+        .fingerprint-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); font-size: 4rem; color: rgba(255,255,255,0.8); z-index: 10; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; }
+        .hud-card.highlight-bio:hover .fingerprint-icon { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        .hud-card.highlight-bio:hover .hud-text, .hud-card.highlight-bio:hover .hud-avatar { opacity: 0.3; blur(2px); }
+
+        .magnetic { display: flex; } 
+        .hud-card:hover { background: rgba(30,30,40,0.9); border-color: var(--neon-blue); box-shadow: 0 0 30px rgba(0, 243, 255, 0.1); }
+        .hud-avatar { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--neon-blue); padding: 3px; background: #000; transition: 0.3s; }
+        .hud-text { transition: 0.3s; }
+        .hud-text h3 { font-family: 'Fira Code'; font-size: 1.2rem; color: white; margin: 0; }
+        .hud-text p { font-family: 'Inter'; font-size: 0.9rem; color: #aaa; margin: 5px 0 0 0; }
+        .hud-icon { font-size: 1.8rem; color: #555; transition: 0.3s; }
+        .hud-card:hover .hud-icon { color: var(--neon-blue); transform: scale(1.2); text-shadow: 0 0 15px var(--neon-blue); }
+        .audio-viz { display: flex; gap: 4px; align-items: flex-end; height: 30px; margin-right: 20px; }
+        .bar { width: 4px; background: var(--neon-purple); animation: equalize 1s infinite ease-in-out; }
+        .bar:nth-child(1) { height: 40%; animation-delay: 0.1s; } .bar:nth-child(2) { height: 80%; animation-delay: 0.2s; } .bar:nth-child(3) { height: 50%; animation-delay: 0.3s; } .bar:nth-child(4) { height: 90%; animation-delay: 0.4s; }
+        @keyframes equalize { 0%, 100% { height: 20%; } 50% { height: 100%; } }
+
+        /* --- 6. BIO MODAL (TEMA: COSMOS UI) --- */
+        .bio-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 10001; pointer-events: none; opacity: 0; transition: opacity 0.5s ease-in-out; }
+        .bio-modal.active { opacity: 1; pointer-events: all; }
+
+        .cosmos-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(76, 29, 149, 0.4), transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(0, 242, 255, 0.15), transparent 50%);
+            background-color: #020202; z-index: 0;
+        }
+
+        .bio-close {
+            position: absolute; top: 30px; right: 30px; width: 50px; height: 50px;
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 1.5rem; cursor: pointer; z-index: 20;
+            background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); transition: 0.3s;
+        }
+        .bio-close:hover { border-color: var(--neon-blue); color: var(--neon-blue); transform: rotate(90deg); }
+
+        .cosmos-wrapper {
+            position: relative; z-index: 5;
+            display: grid; grid-template-columns: 1fr 2fr;
+            height: 100vh; width: 100%; max-width: 1400px; margin: 0 auto;
+            gap: 40px; padding: 40px;
+        }
+
+        /* Lado Esquerdo (Fixo) */
+        .orbit-panel { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; }
+        .planet-avatar-box { position: relative; width: 220px; height: 220px; display: flex; justify-content: center; align-items: center; margin-bottom: 2rem; }
+        .planet-img { width: 160px; height: 160px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.8); box-shadow: 0 0 50px rgba(0, 242, 255, 0.3); position: relative; z-index: 2; }
+        .orbit-ring { position: absolute; border: 1px solid rgba(255,255,255,0.1); border-radius: 50%; animation: orbit-spin linear infinite; }
+        .ring-1 { width: 100%; height: 100%; border-top-color: var(--neon-blue); animation-duration: 10s; }
+        .ring-2 { width: 130%; height: 130%; border-bottom-color: var(--neon-purple); animation-duration: 15s; animation-direction: reverse; }
+        .ring-3 { width: 180%; height: 180%; border: 1px dashed rgba(255,255,255,0.05); animation-duration: 60s; }
+        @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .cosmonaut-name { font-family: 'Archivo Black'; font-size: 2.5rem; color: white; text-transform: uppercase; margin-bottom: 5px; }
+        .cosmonaut-role { font-family: 'Fira Code'; color: var(--neon-blue); font-size: 0.9rem; letter-spacing: 2px; }
+        .cosmonaut-badge { margin-top: 20px; padding: 8px 16px; border: 1px solid var(--neon-purple); color: var(--neon-purple); font-family: 'Fira Code'; font-size: 0.7rem; border-radius: 20px; background: rgba(188, 19, 254, 0.1); }
+
+        /* Lado Direito (Scroll) */
+        .mission-log-panel {
+            overflow-y: auto; padding-right: 20px;
+            scrollbar-width: thin; scrollbar-color: var(--neon-blue) rgba(255,255,255,0.05);
+        }
+        .mission-log-panel::-webkit-scrollbar { width: 6px; }
+        .mission-log-panel::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 3px; }
+
+        .cv-header { border-bottom: 2px solid var(--neon-blue); padding-bottom: 10px; margin-bottom: 20px; margin-top: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .cv-header h3 { color: white; font-family: 'Archivo Black'; font-size: 1.5rem; margin: 0; }
+        .cv-header span { font-family: 'Fira Code'; color: var(--neon-blue); font-size: 0.8rem; }
+
+        .log-entry {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-left: 3px solid var(--neon-blue); padding: 2rem; margin-bottom: 2rem; backdrop-filter: blur(5px);
+            transform: translateY(30px); opacity: 0; transition: 0.5s ease-out; /* Animação Fade Up */
+        }
+        .log-entry.visible { transform: translateY(0); opacity: 1; }
+        .log-entry:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(255,255,255,0.3); box-shadow: 0 0 30px rgba(0, 242, 255, 0.05); }
+
+        .log-date { font-family: 'Fira Code'; font-size: 0.8rem; color: #888; display: block; margin-bottom: 5px; }
+        .log-title { font-family: 'Archivo Black'; font-size: 1.5rem; color: white; margin-bottom: 5px; }
+        .log-location { font-family: 'Fira Code'; color: var(--neon-purple); font-size: 0.9rem; margin-bottom: 15px; display: block; }
+        .log-desc { font-family: 'Inter'; font-size: 1rem; color: #ccc; line-height: 1.6; }
+
+        .constellation-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 15px; margin-top: 1rem; }
+        .star-skill { text-align: center; padding: 15px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; transition: 0.3s; }
+        .star-skill:hover { border-color: var(--neon-blue); transform: translateY(-5px); background: rgba(0, 242, 255, 0.1); }
+        .star-skill i { font-size: 1.5rem; color: white; margin-bottom: 10px; }
+        .star-skill span { display: block; font-family: 'Fira Code'; font-size: 0.7rem; color: #aaa; }
+
+        .btn-warp {
+            display: block; width: 100%; padding: 20px; margin-top: 3rem; margin-bottom: 100px;
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            color: white; font-family: 'Archivo Black'; text-align: center; text-decoration: none;
+            text-transform: uppercase; border: none; cursor: pointer;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+            transition: 0.3s;
+        }
+        .btn-warp:hover { filter: brightness(1.2); letter-spacing: 2px; }
+
+        @media (max-width: 900px) {
+            .gallery-wrapper { flex-direction: column; height: auto; }
+            .card-3d { height: 200px; width: 100%; flex: none; }
+            .card-3d:hover { height: 350px; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .hacker-text { font-size: 3.5rem; }
+            .card-title { font-size: 1.5rem; white-space: normal; }
+            
+            .cosmos-wrapper { grid-template-columns: 1fr; display: block; overflow-y: auto; }
+            .orbit-panel { margin-bottom: 3rem; height: auto; }
+            .mission-log-panel { overflow: visible; padding-right: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-transition"></div>
+
+    <canvas id="neural-canvas"></canvas>
+    <div class="scanline"></div>
+    <div class="vignette"></div>
+    
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+
+    <div class="bio-modal" id="bio-modal">
+        <div class="cosmos-bg"></div>
+        <div class="bio-close" onclick="closeBio()"><i class="fas fa-times"></i></div>
+
+        <div class="cosmos-wrapper">
+            
+            <div class="orbit-panel">
+                <div class="planet-avatar-box">
+                    <div class="orbit-ring ring-1"></div>
+                    <div class="orbit-ring ring-2"></div>
+                    <div class="orbit-ring ring-3"></div>
+                    <img src="https://github.com/jeanfrauzino.png" onerror="this.src='https://via.placeholder.com/150'" class="planet-img">
+                </div>
+                
+                <h2 class="cosmonaut-name">Jean Frauzino</h2>
+                <div class="cosmonaut-role">PILOT // DEV</div>
+                
+                <div class="cosmonaut-badge">
+                    <i class="fas fa-map-marker-alt"></i> BASE: GOIÁS, BR
+                </div>
+
+                <p style="margin-top: 2rem; color: #aaa; font-size: 0.9rem; max-width: 300px; line-height: 1.6;">
+                    Navegando entre o front-end e o back-end para construir universos digitais.
+                </p>
+            </div>
+
+            <div class="mission-log-panel">
+                
+                <div class="cv-header">
+                    <h3>MISSION LOGS</h3>
+                    <span>TIMELINE</span>
+                </div>
+
+                <div class="log-entry reveal-log">
+                    <span class="log-date">STARDATE 2024.10 - PRESENT</span>
+                    <h3 class="log-title">Analista de TI & Dev</h3>
+                    <span class="log-location">@ Cartório do 1º Ofício</span>
+                    <p class="log-desc">
+                        A frente do setor de TI. Desenvolvimento do sistema <strong>SIAJ</strong> e <strong>ToolHub</strong> para automação de processos manuais e centralização de tarefas, reduzindo drásticamente o trabalho manual e aumentando a acertividade nos dados.
+                    </p>
+                </div>
+
+                <div class="log-entry reveal-log">
+                    <span class="log-date">STARDATE 2024.01 - 2024.09</span>
+                    <h3 class="log-title">Estágiario em Homologação de Produtos</h3>
+                    <span class="log-location">@ StringHini</span>
+                    <p class="log-desc">
+                        Análise de qualidade de fotos para treinamento de IA. 
+                    </p>
+                </div>
+
+                <div class="log-entry reveal-log">
+                    <span class="log-date">STARDATE 2022.01 - 2023.04</span>
+                    <h3 class="log-title">Estágiario em Redes</h3>
+                    <span class="log-location">@ SmartLayer</span>
+                    <p class="log-desc">
+                        Configuração de roteadores e switch <strong>Mikrotik</strong> e <strong>Huawei</strong>. 
+                    </p>
+                </div>
+
+                <div class="cv-header" style="margin-top: 3rem;">
+                    <h3>SYSTEMS</h3>
+                    <span>TECH STACK</span>
+                </div>
+
+                <div class="constellation-grid reveal-log">
+                    <div class="star-skill"><i class="fab fa-js"></i><span>JavaScript</span></div>
+                    <div class="star-skill"><i class="fab fa-node"></i><span>Node.js</span></div>
+                    <div class="star-skill"><i class="fas fa-atom"></i><span>Electron</span></div>
+                    <div class="star-skill"><i class="fas fa-database"></i><span>SQL</span></div>
+                    <div class="star-skill"><i class="fas fa-robot"></i><span>Puppeteer</span></div>
+                    <div class="star-skill"><i class="fab fa-docker"></i><span>Docker</span></div>
+                </div>
+
+                <a href="assets/curriculo-jean.pdf" download class="btn-warp reveal-log">
+                    <i class="fas fa-download"></i> DOWNLOAD FLIGHT DATA
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="main-wrapper">
+        
+        <section class="hero-section">
+            <h1 class="hacker-text" data-value="JEAN FRAUZINO">JEAN FRAUZINO</h1>
+            <div class="tagline-box">
+                <span class="tag">ELECTRON</span>
+                <span class="tag">AUTOMATION</span>
+            </div>
+        </section>
+
+        <div class="section-header">
+            <div class="section-label">/// MODULE_SELECTION</div>
+        </div>
+        
+        <div class="gallery-wrapper">
+            <a href="siaj.html" class="card-3d card-link" data-tilt>
+                <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1555421689-d68471e189f2?q=80&w=1600&auto=format&fit=crop');"></div>
+                <div class="card-num">01</div>
+                <div class="card-content">
+                    <h2 class="card-title">SIAJ</h2>
+                    <span class="card-tech">DESKTOP SYSTEM</span>
+                </div>
+            </a>
+            <a href="alembraeu.html" class="card-3d card-link" data-tilt>
+                <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1611746872915-64382b5c76da?q=80&w=1600&auto=format&fit=crop');"></div>
+                <div class="card-num">02</div>
+                <div class="card-content">
+                    <h2 class="card-title">ALEMBRAEU</h2>
+                    <span class="card-tech">WHATSAPP BOT</span>
+                </div>
+            </a>
+            <a href="toolhub.html" class="card-3d card-link" data-tilt>
+                <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=1600&auto=format&fit=crop');"></div>
+                <div class="card-num">03</div>
+                <div class="card-content">
+                    <h2 class="card-title">TOOLHUB</h2>
+                    <span class="card-tech">UTILITIES KIT</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="section-header">
+            <div class="section-label">/// OPERATOR_DATA_LINK</div>
+        </div>
+
+        <div class="footer-grid">
+            <div class="hud-card magnetic highlight-bio" style="grid-column: span 1;" onclick="openBio()">
+                <div class="click-hint">ACCESS</div>
+                <i class="fas fa-fingerprint fingerprint-icon"></i>
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <img src="https://github.com/jeanfrauzino.png" onerror="this.src='https://via.placeholder.com/60'" class="hud-avatar">
+                    <div class="hud-text">
+                        <h3>Jean Frauzino</h3>
+                        <p>Architecting digital ecosystems.</p>
+                    </div>
+                </div>
+                <div class="audio-viz"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+            </div>
+            <a href="https://github.com/JeanFrauzino" target="_blank" class="hud-card magnetic">
+                <div class="hud-text"><h3>GitHub</h3><p>Source Code</p></div><i class="fab fa-github hud-icon"></i>
+            </a>
+            <a href="https://wa.me/556492517417" target="_blank" class="hud-card magnetic">
+                <div class="hud-text"><h3>Contato</h3><p>Start Project</p></div><i class="fab fa-whatsapp hud-icon"></i>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. REVEAL PAGE ---
+        const transitionEl = document.querySelector('.page-transition');
+        function revealPage() { transitionEl.style.opacity = 0; }
+        document.addEventListener('DOMContentLoaded', revealPage);
+        window.onload = revealPage;
+        setTimeout(revealPage, 500);
+
+        // --- 2. TRANSITION MANAGER (WARP vs FADE) ---
+        // Links normais (Footer) -> Fade simples
+        document.querySelectorAll('a:not(.card-link)').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const target = this.getAttribute('href');
+                if (target.startsWith('#') || target.startsWith('http') || this.target === '_blank') return;
+                e.preventDefault(); 
+                transitionEl.style.pointerEvents = 'all'; transitionEl.style.opacity = 1; 
+                setTimeout(() => { window.location.href = target; }, 800);
+            });
+        });
+
+        // Cards de Projeto -> WARP EFFECT
+        document.querySelectorAll('.card-link').forEach(card => {
+            card.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = this.getAttribute('href');
+                
+                // Ativa modo Warp
+                this.classList.add('warping');
+                document.body.classList.add('warp-mode');
+                
+                // Espera a animação de zoom (1s) e navega
+                setTimeout(() => { window.location.href = target; }, 900);
+            });
+        });
+
+        // --- 3. CURSOR ---
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorRing = document.querySelector('.cursor-ring');
+        window.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = `${e.clientX}px`; cursorDot.style.top = `${e.clientY}px`;
+            cursorRing.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 500, fill: "forwards" });
+        });
+        document.querySelectorAll('a, .card-3d, .magnetic, .hud-card').forEach(el => {
+            el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+        });
+
+        // --- 4. BIO MODAL (COSMOS) ---
+        const bioModal = document.getElementById('bio-modal');
+        const missionLogPanel = document.querySelector('.mission-log-panel');
+
+        const logObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) { entry.target.classList.add('visible'); }
+            });
+        }, { threshold: 0.1, root: missionLogPanel });
+
+        function openBio() {
+            bioModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            document.querySelectorAll('.reveal-log').forEach(el => logObserver.observe(el));
+        }
+        function closeBio() {
+            bioModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // --- 5. NEURAL NETWORK ---
+        const canvas = document.getElementById('neural-canvas'); const ctx = canvas.getContext('2d');
+        let width, height; let particles = [];
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+        class Particle {
+            constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.size = Math.random() * 2; }
+            update() { this.x += this.vx; this.y += this.vy; if(this.x < 0 || this.x > width) this.vx *= -1; if(this.y < 0 || this.y > height) this.vy *= -1; }
+            draw() { ctx.fillStyle = "rgba(0, 243, 255, 0.3)"; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+        }
+        for(let i=0; i<60; i++) particles.push(new Particle());
+        let mouseX = 0, mouseY = 0;
+        window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+        function animateNeural() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update(); p.draw();
+                const dx = mouseX - p.x; const dy = mouseY - p.y; const dist = Math.sqrt(dx*dx + dy*dy);
+                if(dist < 200) { ctx.strokeStyle = `rgba(0, 243, 255, ${1 - dist/200})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouseX, mouseY); ctx.stroke(); }
+            });
+            requestAnimationFrame(animateNeural);
+        }
+        animateNeural();
+
+        // --- 6. HACKER TEXT ---
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"; const h1 = document.querySelector(".hacker-text");
+        const runHackerEffect = () => {
+            let iteration = 0; clearInterval(h1.interval);
+            h1.interval = setInterval(() => {
+                h1.innerText = h1.dataset.value.split("").map((letter, index) => { if(index < iteration) return h1.dataset.value[index]; return letters[Math.floor(Math.random() * 36)]; }).join("");
+                if(iteration >= h1.dataset.value.length) clearInterval(h1.interval); iteration += 1 / 3;
+            }, 30);
+        }
+        window.onload = runHackerEffect; h1.onmouseover = runHackerEffect;
+
+        // --- 7. 3D TILT ---
+        document.querySelectorAll('.card-3d').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+                const centerX = rect.width / 2; const centerY = rect.height / 2;
+                const rotateX = ((y - centerY) / centerY) * -15; const rotateY = ((x - centerX) / centerX) * 15;
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+            });
+            card.addEventListener('mouseleave', () => { card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(1)`; });
+        });
+
+        // --- 8. MAGNET ---
+        document.querySelectorAll('.magnetic').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect(); const x = e.clientX - rect.left - rect.width / 2; const y = e.clientY - rect.top - rect.height / 2;
+                btn.style.transform = `translate(${x * 0.2}px, ${y * 0.2}px)`;
+            });
+            btn.addEventListener('mouseleave', () => { btn.style.transform = `translate(0px, 0px)`; });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIAJ | System Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fira+Code&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-color: #ffffff;
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- AJUSTE FINAL: REMOVER MOUSE DO SISTEMA --- */
+        * { 
+            margin: 0; padding: 0; box-sizing: border-box; 
+            cursor: none !important; /* Força o mouse a sumir em tudo */
+        }
+
+        body, html { height: 100%; overflow-x: hidden; background-color: var(--bg-color); font-family: 'Inter', sans-serif; }
+
+        /* SCROLLBAR GERAL */
+        ::-webkit-scrollbar { width: 8px; background: #050505; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        ::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 4px; border: 1px solid rgba(255,255,255,0.5); }
+
+        /* --- 1. EFEITOS DE FUNDO (VISUAL DNA) --- */
+        #neural-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .scanline { width: 100%; height: 100px; z-index: 10; background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(255, 255, 255, 0.02) 50%, rgba(0,0,0,0) 100%); opacity: 0.1; position: fixed; bottom: 100%; pointer-events: none; animation: scanline 10s linear infinite; }
+        @keyframes scanline { 0% { bottom: 100%; } 100% { bottom: -100%; } }
+        .vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; box-shadow: 0 0 200px rgba(0,0,0,0.9) inset; pointer-events: none; z-index: 1; }
+
+        /* --- 2. CURSOR (ANEL) --- */
+        .cursor-dot { width: 10px; height: 10px; background: white; box-shadow: 0 0 10px white; position: fixed; border-radius: 50%; pointer-events: none; z-index: 999999; transform: translate(-50%, -50%); mix-blend-mode: difference; }
+        .cursor-ring { position: fixed; top: 0; left: 0; transform: translate(-50%, -50%); width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.5); border-radius: 50%; pointer-events: none; z-index: 999998; mix-blend-mode: difference; transition: width 0.3s, height 0.3s, border-color 0.3s, background-color 0.3s; }
+        body.hovering .cursor-ring { width: 80px; height: 80px; border-color: var(--neon-blue); background: rgba(0, 243, 255, 0.1); }
+
+        .content-wrapper { position: relative; z-index: 2; padding: 2rem; min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* --- 3. NAV --- */
+        .nav-bar { position: fixed; top: 0; left: 0; width: 100%; padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; background: linear-gradient(to bottom, rgba(2,2,2,0.9), transparent); backdrop-filter: blur(5px); }
+        .back-btn { color: white; text-decoration: none; font-family: 'Fira Code'; border: 1px solid var(--border); padding: 8px 16px; border-radius: 4px; transition: 0.3s; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+        .back-btn:hover { border-color: var(--neon-blue); color: var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue); }
+
+        /* --- 4. HERO --- */
+        .project-header { text-align: center; margin-top: 15vh; margin-bottom: 5vh; }
+        .project-title { font-family: 'Archivo Black'; font-size: clamp(3rem, 8vw, 7rem); color: white; margin-bottom: 0.5rem; line-height: 0.9; }
+        .project-typewriter { font-family: 'Fira Code'; color: var(--neon-blue); letter-spacing: 2px; font-size: clamp(0.8rem, 2vw, 1rem); }
+
+        /* --- 5. SIMULADOR MODAL --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(15px); z-index: 10000; opacity: 0; pointer-events: none; transition: 0.5s; display: flex; align-items: center; justify-content: center; }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .simulator-container { width: 95%; max-width: 1400px; height: 85vh; background: #08080a; border: 1px solid var(--border); border-radius: 12px; display: flex; overflow: hidden; transform: scale(0.9); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .modal-overlay.active .simulator-container { transform: scale(1); }
+
+        /* Sidebar do Simulador */
+        .sim-sidebar { width: 260px; background: #0c0c0e; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 2rem 1rem; overflow-y: auto; }
+        .sim-logo { font-family: 'Archivo Black'; color: white; margin-bottom: 2rem; font-size: 1.5rem; padding-left: 10px; border-left: 4px solid var(--neon-blue); line-height: 1; }
+        
+        /* Rótulos não clicáveis (Ex: Main, Configurações) */
+        .sim-menu-label { font-family: 'Fira Code'; color: #444; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; margin: 2rem 0 0.8rem 15px; font-weight: bold; }
+        
+        /* Itens clicáveis */
+        .sim-nav-item { padding: 12px 15px; border-radius: 8px; color: #888; transition: 0.3s; display: flex; align-items: center; gap: 12px; font-family: 'Inter'; font-size: 0.9rem; margin-bottom: 5px; }
+        .sim-nav-item i { width: 20px; text-align: center; font-size: 1.1rem; }
+        .sim-nav-item:hover, .sim-nav-item.active { color: var(--neon-blue); background: rgba(0, 243, 255, 0.05); }
+        .sim-nav-item.active { border-right: 3px solid var(--neon-blue); border-radius: 8px 0 0 8px; font-weight: bold; color: white; }
+        
+        /* Main Area */
+        .sim-main { flex: 1; display: flex; background: #020202; position: relative; }
+        
+        .sim-screen-area { flex: 2; background: #000; display: flex; align-items: center; justify-content: center; position: relative; border-right: 1px solid var(--border); overflow: hidden; }
+        .sim-screen-area img { 
+            max-width: 95%; max-height: 90%; object-fit: contain; transition: 0.5s; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); cursor: zoom-in;
+        }
+        .sim-screen-area img:hover { transform: scale(1.02); border: 1px solid var(--neon-blue); }
+        
+        .sim-info-area { flex: 1; padding: 3rem; display: flex; flex-direction: column; justify-content: center; background: linear-gradient(135deg, #050505 0%, #0a0a0e 100%); }
+        .sim-title { font-family: 'Archivo Black'; font-size: 2rem; color: var(--neon-blue); margin-bottom: 1rem; text-transform: uppercase; line-height: 1; }
+        .sim-desc { color: #aaa; line-height: 1.6; font-size: 1rem; margin-bottom: 2rem; }
+        .sim-hint { padding: 1rem; border: 1px dashed var(--neon-purple); color: var(--neon-purple); font-family: 'Fira Code'; font-size: 0.8rem; border-radius: 8px; background: rgba(188, 19, 254, 0.05); }
+
+        .close-sim { position: absolute; top: 20px; right: 20px; color: #555; font-size: 1.5rem; transition: 0.3s; z-index: 100; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid transparent; }
+        .close-sim:hover { color: white; border-color: white; transform: rotate(90deg); background: rgba(255,255,255,0.1); }
+
+        /* --- 6. ZOOM LIGHTBOX (POP-UP) --- */
+        .zoom-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 20000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(5px); }
+        .zoom-overlay.active { opacity: 1; pointer-events: all; }
+        .zoom-img-container { position: relative; max-width: 95%; max-height: 95%; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: center; }
+        .zoom-overlay.active .zoom-img-container { transform: scale(1); }
+        .zoom-img-container img { max-width: 100%; max-height: 95vh; border: 1px solid var(--neon-blue); box-shadow: 0 0 80px rgba(0, 243, 255, 0.15); border-radius: 8px; display: block; }
+        .close-zoom { position: absolute; top: 20px; right: 30px; color: white; font-size: 3rem; transition: 0.3s; font-family: 'Inter'; z-index: 20001; text-shadow: 0 0 20px black; }
+        .close-zoom:hover { color: var(--neon-purple); transform: scale(1.2); }
+
+        /* --- 7. NOTIFICAÇÃO DE SISTEMA (GAMIFICAÇÃO) --- */
+        #sys-notification {
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: rgba(10, 5, 20, 0.95); border: 1px solid var(--neon-purple);
+            padding: 1.5rem 2rem; border-radius: 12px; z-index: 30000;
+            display: flex; align-items: center; gap: 20px;
+            box-shadow: 0 0 50px rgba(188, 19, 254, 0.3);
+            backdrop-filter: blur(10px); opacity: 0; transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+        #sys-notification.active { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: all; }
+        #sys-notification:hover { background: rgba(20, 10, 30, 1); transform: translateX(-50%) scale(1.05); }
+        
+        .notif-icon { font-size: 2rem; color: var(--neon-purple); animation: pulse-purple 2s infinite; }
+        .notif-text h3 { margin: 0; font-family: 'Archivo Black'; color: white; font-size: 1.1rem; text-transform: uppercase; }
+        .notif-text p { margin: 5px 0 0 0; font-family: 'Fira Code'; color: #ccc; font-size: 0.8rem; }
+        .notif-btn { background: var(--neon-purple); color: white; padding: 5px 15px; border-radius: 4px; font-family: 'Fira Code'; font-weight: bold; font-size: 0.8rem; margin-left: 20px; }
+        @keyframes pulse-purple { 0%, 100% { text-shadow: 0 0 10px var(--neon-purple); } 50% { text-shadow: 0 0 30px var(--neon-purple); } }
+
+
+        /* BENTO GRID */
+        .info-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; max-width: 1400px; margin: 0 auto 5rem auto; padding: 0 2rem; width: 100%; }
+        .grid-card { background: rgba(15, 15, 20, 0.6); border: 1px solid rgba(255,255,255,0.1); padding: 3rem; border-radius: 12px; backdrop-filter: blur(10px); transition: 0.4s; position: relative; overflow: hidden; }
+        .grid-card:hover { border-color: var(--neon-blue); transform: translateY(-5px); box-shadow: 0 0 30px rgba(0, 243, 255, 0.1); }
+        .card-full { grid-column: span 12; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; }
+        
+        .btn-launch { 
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple)); 
+            color: white; padding: 1.5rem 3rem; font-family: 'Archivo Black'; font-size: 1.2rem;
+            text-decoration: none; display: inline-block; border-radius: 4px; margin-top: 2rem; 
+            transition: 0.3s; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+        .btn-launch:hover { transform: scale(1.05); filter: brightness(1.2); letter-spacing: 2px; box-shadow: 0 0 50px rgba(0, 243, 255, 0.3); }
+
+        /* --- CLASSE PARA CARD ESCONDIDO (GAMIFICAÇÃO) --- */
+        .hidden-card { display: none; }
+        
+        /* Animação de entrada suave */
+        .fade-in-up { animation: fadeInUp 1s forwards; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 900px) { 
+            .simulator-container { flex-direction: column; height: 100vh; max-height: 100vh; border-radius: 0; transform: none; } 
+            .modal-overlay { padding: 0; }
+            .sim-sidebar { width: 100%; height: 20%; min-height: 150px; flex-direction: row; overflow-x: auto; padding: 1rem; border-right: none; border-bottom: 1px solid var(--border); }
+            .sim-logo { display: none; }
+            .sim-menu-label { display: none; }
+            .sim-nav-item { white-space: nowrap; flex: none; }
+            .sim-main { flex-direction: column; height: 80%; } 
+            .sim-screen-area { flex: 1.5; padding: 1rem; }
+            .sim-info-area { flex: 1; padding: 1.5rem; overflow-y: auto; }
+            .sim-title { font-size: 1.5rem; }
+            .project-title { font-size: 3.5rem; }
+            #sys-notification { width: 90%; flex-direction: column; text-align: center; }
+            .notif-btn { margin: 10px 0 0 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="neural-canvas"></canvas>
+    <div class="scanline"></div>
+    <div class="vignette"></div>
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+
+    <div class="zoom-overlay" id="zoom-modal" onclick="closeZoom()">
+        <span class="close-zoom" onclick="closeZoom()">&times;</span>
+        <div class="zoom-img-container" onclick="event.stopPropagation()">
+            <img id="zoom-img-target" src="" alt="Zoom Preview">
+        </div>
+    </div>
+
+    <div id="sys-notification" onclick="scrollToContact()">
+        <i class="fas fa-unlock-alt notif-icon"></i>
+        <div class="notif-text">
+            <h3>Novo Recurso Desbloqueado</h3>
+            <p>Se interessou? Solicite uma demonstração agora.</p>
+        </div>
+        <div class="notif-btn">CLIQUE AQUI</div>
+    </div>
+
+    <div class="modal-overlay" id="simulator-modal">
+        <div class="simulator-container">
+            <div class="close-sim" onclick="closeSim()"><i class="fas fa-times"></i></div>
+            
+            <aside class="sim-sidebar">
+                <div class="sim-logo">SIAJ<br><span style="font-size: 0.7rem; font-family: 'Fira Code'; color: var(--neon-blue);">V1.1.15</span></div>
+                
+                <div class="sim-menu-label">Principal</div>
+                <div class="sim-nav-item active" onclick="switchSim('dash', this)">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </div>
+
+                <div class="sim-menu-label">Configurações</div>
+                
+                <div class="sim-nav-item" onclick="switchSim('conf-geral', this)">
+                    <i class="fas fa-sliders-h"></i> Geral
+                </div>
+                
+                <div class="sim-nav-item" onclick="switchSim('conf-ia', this)">
+                    <i class="fas fa-brain"></i> IA & Email
+                </div>
+                
+                <div class="sim-nav-item" onclick="switchSim('conf-wa', this)">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </div>
+                
+                <div class="sim-nav-item" onclick="switchSim('conf-sis', this)">
+                    <i class="fas fa-terminal"></i> Sistema
+                </div>
+            </aside>
+
+            <main class="sim-main">
+                <section class="sim-screen-area">
+                    <img id="sim-img" src="assets/siaj-dashboard2.png" alt="SIAJ Display" onclick="openZoom(this.src)">
+                    <div style="position: absolute; bottom: 10px; right: 10px; color: rgba(255,255,255,0.3); font-family: 'Fira Code'; font-size: 0.7rem;">
+                        <i class="fas fa-search-plus"></i> CLIQUE PARA AMPLIAR
+                    </div>
+                </section>
+                
+                <section class="sim-info-area">
+                    <h2 id="sim-title" class="sim-title">Dashboard Analítico</h2>
+                    <p id="sim-desc" class="sim-desc">
+                        A tela inicial do aplicativo, repleta de informações para o usuário poder acompanhar o andamento da execução, status do sistema e a validade da licença de ativação.
+                    </p>
+                    <div id="sim-hint" class="sim-hint">
+                        > DICA: Navegue pelo menu lateral para explorar as configurações do sistema.
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <nav class="nav-bar">
+            <a href="index.html" class="back-btn"><i class="fas fa-chevron-left"></i> HUB PRINCIPAL</a>
+            <div style="font-family: 'Fira Code'; color: #444; font-size: 0.8rem; display: flex; align-items: center; gap: 10px;">
+                <span style="width: 8px; height: 8px; background: #00ff00; border-radius: 50%; box-shadow: 0 0 10px #00ff00;"></span>
+                SYSTEM ONLINE
+            </div>
+        </nav>
+
+        <header class="project-header">
+            <div class="project-typewriter" style="margin-bottom: 20px;">/// SECURE_APP_DEMONSTRATION</div>
+            <h1 class="project-title">SIAJ<span style="color: var(--neon-blue);">.EXE</span></h1>
+            <p style="color: #888; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+                Um sistema que automatiza o trabalho manual de triagem e análise de dados do Diário da Justiça do TJ-GO.
+            </p>
+        </header>
+
+        <section class="info-grid">
+            <div class="grid-card card-full">
+                <div style="font-size: 4rem; color: var(--neon-blue); margin-bottom: 1rem;">
+                    <i class="fas fa-laptop-code"></i>
+                </div>
+                <h2 class="card-title" style="font-family: 'Archivo Black'; font-size: 2rem; color: white;">SIMULADOR INTERATIVO</h2>
+                <p style="color: #aaa; max-width: 700px; margin-bottom: 1rem;">
+                    Explore as funcionalidades e recursos do sistema. Navegue pelos menus, verifique as opções de configuração e como ela pode te ajudar na triagem de dados do DJ.
+                </p>
+                <a href="#" class="btn-launch" onclick="openSim()">CONHECA O SISTEMA</a>
+            </div>
+
+            <div id="demo-card" class="grid-card card-full hidden-card" style="margin-top: 2rem; border-color: rgba(188, 19, 254, 0.4);">
+                <div style="font-size: 4rem; color: var(--neon-purple); margin-bottom: 1rem;">
+                    <i class="fas fa-rocket"></i>
+                </div>
+                <h2 class="card-title" style="font-family: 'Archivo Black'; font-size: 2rem; color: white;">PRONTO PARA OTIMIZAR?</h2>
+                <p style="color: #aaa; max-width: 700px; margin-bottom: 1rem;">
+                    O SIAJ foi desenvolvido para resolver problemas reais de cartórios. Agende uma apresentação técnica e leve essa tecnologia para sua equipe.
+                </p>
+                <a href="https://wa.me/5564992517417?text=Ol%C3%A1%2C+Jean!+Vi+o+projeto+SIAJ+e+gostaria+de+uma+demonstra%C3%A7%C3%A3o." target="_blank" class="btn-launch" style="background: transparent; border: 2px solid var(--neon-purple); color: var(--neon-purple);">
+                    <i class="fab fa-whatsapp"></i> SOLICITAR DEMONSTRAÇÃO
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // --- 1. DADOS DO SIMULADOR (MAPA DAS TELAS) ---
+        const simData = {
+            'dash': { 
+                title: "Dashboard Analítico", 
+                desc: "A tela inicial do aplicativo, repleta de informações para o usuário poder acompanhar o andamento da execução, status do sistema e a validade da licença de ativação.", 
+                img: "assets/siaj-dashboard2.png" 
+            },
+            'conf-geral': { 
+                title: "Configuração Geral", 
+                desc: "Configuração de segurança para causar restrição a certas configurações sensiveis do sistema.", 
+                img: "assets/siaj-geral.png" 
+            },
+            'conf-ia': { 
+                title: "Inteligência Artificial e Email", 
+                desc: "Configuração da API da IA que é usada para as análises das ocorrências e notificações por email passando como parâmetros o email de origem, senha e email de destino. Podendo ativar, ou não!", 
+                img: "assets/siaj-ia.png" 
+            },
+            'conf-wa': { 
+                title: "Notificações na tela do Celular", 
+                desc: "É possivel receber notificações por WhatsApp e Telegram, basta configurar de forma adequada os campos compatíveis.", 
+                img: "assets/siaj-whatsapp.png" 
+            },
+            'conf-sis': { 
+                title: "Configurações Específicas", 
+                desc: "O sistema precisa de uma licença de funcionamento, podendo ser solicitada ao administrador. Também é possível configurar agendamento para a execução automática do sistema, podendo também ser configurado a rotina de 2ª tentativa. O sistema deixa ao critério do usuário, se auto-atualiza ou não. Também pode ser configurado a quantidade de diários a ser armazenados em máquina.", 
+                img: "assets/siaj-sistema.png" 
+            }
+        };
+
+        // --- CONTROLE DE GAMIFICAÇÃO (DESBLOQUEIO) ---
+        // Lista das chaves que o usuário precisa visitar
+        const requiredSteps = ['dash', 'conf-geral', 'conf-ia', 'conf-wa', 'conf-sis'];
+        const visitedSteps = new Set(); // Armazena passos únicos visitados
+
+        // --- 2. LÓGICA DE NAVEGAÇÃO DO SIMULADOR ---
+        function switchSim(key, el) {
+            const data = simData[key];
+            
+            // Remove active de todos os nav-items
+            document.querySelectorAll('.sim-nav-item').forEach(i => i.classList.remove('active'));
+            // Adiciona active ao clicado
+            el.classList.add('active');
+
+            // --- LÓGICA DE DESBLOQUEIO ---
+            visitedSteps.add(key); // Marca como visitado
+            checkUnlock();         // Verifica se completou tudo
+
+            // Efeito de transição na imagem
+            const img = document.getElementById('sim-img');
+            const title = document.getElementById('sim-title');
+            const desc = document.getElementById('sim-desc');
+
+            img.style.opacity = 0;
+            img.style.transform = "scale(0.95)";
+            
+            setTimeout(() => {
+                // Se a imagem não existir no objeto, usa um placeholder
+                img.src = data.img || 'https://via.placeholder.com/800x500?text=IMAGE+NOT+FOUND'; 
+                title.innerText = data.title;
+                desc.innerText = data.desc;
+                
+                img.style.opacity = 1;
+                img.style.transform = "scale(1)";
+            }, 300);
+        }
+
+        // Função que verifica se o usuário viu tudo e libera o card
+        function checkUnlock() {
+            const allVisited = requiredSteps.every(step => visitedSteps.has(step));
+            
+            if (allVisited) {
+                const hiddenCard = document.getElementById('demo-card');
+                const notification = document.getElementById('sys-notification');
+
+                // Se ainda estiver escondido, mostra com animação
+                if (hiddenCard.classList.contains('hidden-card')) {
+                    hiddenCard.classList.remove('hidden-card'); // Remove display: none
+                    hiddenCard.classList.add('fade-in-up');     // Adiciona animação
+                    
+                    // Mostra o pop-up de sistema
+                    notification.classList.add('active');
+                }
+            }
+        }
+
+        // Função chamada ao clicar no pop-up
+        function scrollToContact() {
+            closeSim(); // Fecha o simulador
+            // Rola até o card de demonstração
+            document.getElementById('demo-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // Esconde a notificação depois de clicar
+            document.getElementById('sys-notification').classList.remove('active');
+        }
+
+        function openSim() { 
+            document.getElementById('simulator-modal').classList.add('active'); 
+            document.body.style.overflow = 'hidden'; 
+            // Marca o 'dash' como visitado automaticamente ao abrir, pois é a tela padrão
+            visitedSteps.add('dash');
+            checkUnlock();
+        }
+        function closeSim() { 
+            document.getElementById('simulator-modal').classList.remove('active'); 
+            document.body.style.overflow = 'auto'; 
+        }
+
+        // --- 3. LÓGICA DE ZOOM (LIGHTBOX) ---
+        const zoomModal = document.getElementById('zoom-modal');
+        const zoomTarget = document.getElementById('zoom-img-target');
+
+        function openZoom(src) {
+            zoomTarget.src = src;
+            zoomModal.classList.add('active');
+            // O overflow já está hidden pelo simulador, mas garantimos
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeZoom() {
+            zoomModal.classList.remove('active');
+            // Não restauramos o scroll se o simulador estiver aberto
+            if(!document.getElementById('simulator-modal').classList.contains('active')) {
+                document.body.style.overflow = 'auto';
+            }
+        }
+        // Fecha com ESC
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeZoom(); closeSim(); } });
+
+
+        // --- 4. ENGINE GRÁFICA (NEURAL CANVAS) ---
+        const canvas = document.getElementById('neural-canvas'); const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+        
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+        
+        class Particle {
+            constructor() { 
+                this.x = Math.random() * width; this.y = Math.random() * height; 
+                this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; 
+                this.size = Math.random() * 2; 
+            }
+            update() { 
+                this.x += this.vx; this.y += this.vy; 
+                if(this.x < 0 || this.x > width) this.vx *= -1; 
+                if(this.y < 0 || this.y > height) this.vy *= -1; 
+            }
+            draw() { 
+                ctx.fillStyle = "rgba(0, 243, 255, 0.3)"; ctx.beginPath(); 
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); 
+            }
+        }
+        
+        for(let i=0; i<60; i++) particles.push(new Particle());
+        
+        let mouseX = 0, mouseY = 0;
+        window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+        
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update(); p.draw();
+                const dx = mouseX - p.x; const dy = mouseY - p.y; const dist = Math.sqrt(dx*dx + dy*dy);
+                if(dist < 200) { 
+                    ctx.strokeStyle = `rgba(0, 243, 255, ${1 - dist/200})`; 
+                    ctx.lineWidth = 1; ctx.beginPath(); 
+                    ctx.moveTo(p.x, p.y); ctx.lineTo(mouseX, mouseY); ctx.stroke(); 
+                }
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- 5. CURSOR PERSONALIZADO ---
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorRing = document.querySelector('.cursor-ring');
+        
+        window.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = `${e.clientX}px`; 
+            cursorDot.style.top = `${e.clientY}px`;
+            cursorRing.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 500, fill: "forwards" });
+        });
+        
+        const interactives = document.querySelectorAll('a, button, .sim-nav-item, .btn-launch, .close-sim, .close-zoom, img, #sys-notification');
+        interactives.forEach(el => {
+            el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+        });
+    </script>
+</body>
+</html>

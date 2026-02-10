@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALEMBRAEU | Desktop Automation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Fira+Code&family=Inter:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-color: #ffffff;
+            /* IDENTIDADE ALEMBRAEU: VERDE NEON */
+            --brand-main: #00ff88; 
+            --brand-sec: #00cc6a;
+            --glass: rgba(10, 20, 15, 0.95);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- MOUSE INVISÍVEL GLOBAL --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none !important; }
+
+        body, html { height: 100%; overflow-x: hidden; background-color: var(--bg-color); font-family: 'Inter', sans-serif; }
+
+        /* SCROLLBAR VERDE */
+        ::-webkit-scrollbar { width: 8px; background: #050505; }
+        ::-webkit-scrollbar-track { background: rgba(0, 255, 136, 0.05); }
+        ::-webkit-scrollbar-thumb { background: var(--brand-main); border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); }
+
+        /* --- 1. EFEITOS DE FUNDO --- */
+        #neural-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+        .scanline { width: 100%; height: 100px; z-index: 10; background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(0, 255, 136, 0.02) 50%, rgba(0,0,0,0) 100%); opacity: 0.1; position: fixed; bottom: 100%; pointer-events: none; animation: scanline 10s linear infinite; }
+        @keyframes scanline { 0% { bottom: 100%; } 100% { bottom: -100%; } }
+        .vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; box-shadow: 0 0 200px rgba(0,0,0,0.9) inset; pointer-events: none; z-index: 1; }
+
+        /* --- 2. CURSOR (ANEL) --- */
+        .cursor-dot { width: 10px; height: 10px; background: white; box-shadow: 0 0 10px white; position: fixed; border-radius: 50%; pointer-events: none; z-index: 99999; transform: translate(-50%, -50%); mix-blend-mode: difference; }
+        .cursor-ring { position: fixed; top: 0; left: 0; transform: translate(-50%, -50%); width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.5); border-radius: 50%; pointer-events: none; z-index: 99998; mix-blend-mode: difference; transition: width 0.3s, height 0.3s, border-color 0.3s, background-color 0.3s; }
+        body.hovering .cursor-ring { width: 80px; height: 80px; border-color: var(--brand-main); background: rgba(0, 255, 136, 0.1); }
+
+        .content-wrapper { position: relative; z-index: 2; padding: 2rem; min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* --- 3. NAV --- */
+        .nav-bar { position: fixed; top: 0; left: 0; width: 100%; padding: 1.5rem 3rem; display: flex; justify-content: space-between; align-items: center; z-index: 100; background: linear-gradient(to bottom, rgba(5,5,5,0.95), transparent); backdrop-filter: blur(5px); }
+        .back-btn { color: white; text-decoration: none; font-family: 'Fira Code'; border: 1px solid var(--border); padding: 8px 16px; border-radius: 4px; transition: 0.3s; display: flex; align-items: center; gap: 10px; font-size: 0.9rem; }
+        .back-btn:hover { border-color: var(--brand-main); color: var(--brand-main); box-shadow: 0 0 15px var(--brand-main); }
+
+        /* --- 4. HERO --- */
+        .project-header { text-align: center; margin-top: 15vh; margin-bottom: 5vh; }
+        .project-title { font-family: 'Archivo Black'; font-size: clamp(3rem, 8vw, 6rem); color: white; margin-bottom: 0.5rem; line-height: 0.9; }
+        .project-typewriter { font-family: 'Fira Code'; color: var(--brand-main); letter-spacing: 2px; font-size: clamp(0.8rem, 2vw, 1rem); }
+
+        /* --- 5. SIMULADOR MODAL --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(15px); z-index: 10000; opacity: 0; pointer-events: none; transition: 0.5s; display: flex; align-items: center; justify-content: center; }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .simulator-container { width: 95%; max-width: 1400px; height: 85vh; background: #050a05; border: 1px solid var(--border); border-radius: 12px; display: flex; overflow: hidden; transform: scale(0.9); transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .modal-overlay.active .simulator-container { transform: scale(1); }
+
+        /* Sidebar */
+        .sim-sidebar { width: 260px; background: #020502; border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 2rem 1rem; overflow-y: auto; }
+        .sim-logo { font-family: 'Archivo Black'; color: white; margin-bottom: 2rem; font-size: 1.5rem; padding-left: 10px; border-left: 4px solid var(--brand-main); line-height: 1; }
+        
+        .sim-menu-label { font-family: 'Fira Code'; color: #666; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; margin: 2rem 0 0.8rem 15px; font-weight: bold; }
+        
+        .sim-nav-item { padding: 12px 15px; border-radius: 8px; color: #888; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 12px; font-family: 'Inter'; font-size: 0.9rem; margin-bottom: 5px; }
+        .sim-nav-item i { width: 20px; text-align: center; font-size: 1.1rem; }
+        .sim-nav-item:hover, .sim-nav-item.active { color: var(--brand-main); background: rgba(0, 255, 136, 0.05); }
+        .sim-nav-item.active { border-right: 3px solid var(--brand-main); border-radius: 8px 0 0 8px; font-weight: bold; color: white; }
+
+        /* Main Area */
+        .sim-main { flex: 1; display: flex; background: #020202; position: relative; }
+        .sim-screen-area { flex: 2; background: #000; display: flex; align-items: center; justify-content: center; position: relative; border-right: 1px solid var(--border); overflow: hidden; }
+        .sim-screen-area img { max-width: 95%; max-height: 90%; object-fit: contain; transition: 0.5s; box-shadow: 0 20px 50px rgba(0,0,0,0.5); cursor: zoom-in; }
+        .sim-screen-area img:hover { transform: scale(1.02); border: 1px solid var(--brand-main); }
+        
+        .sim-info-area { flex: 1; padding: 3rem; display: flex; flex-direction: column; justify-content: center; background: linear-gradient(135deg, #050505 0%, #051a0f 100%); }
+        .sim-title { font-family: 'Archivo Black'; font-size: 2rem; color: var(--brand-main); margin-bottom: 1rem; text-transform: uppercase; line-height: 1; }
+        .sim-desc { color: #aaa; line-height: 1.6; font-size: 1rem; margin-bottom: 2rem; }
+        .sim-hint { padding: 1rem; border: 1px dashed var(--brand-main); color: var(--brand-main); font-family: 'Fira Code'; font-size: 0.8rem; border-radius: 8px; background: rgba(0, 255, 136, 0.05); }
+
+        .close-sim { position: absolute; top: 20px; right: 20px; color: #555; font-size: 1.5rem; transition: 0.3s; z-index: 100; cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 1px solid transparent; }
+        .close-sim:hover { color: white; border-color: white; transform: rotate(90deg); background: rgba(255,255,255,0.1); }
+
+        /* --- 6. ZOOM LIGHTBOX --- */
+        .zoom-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.95); z-index: 20000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(5px); }
+        .zoom-overlay.active { opacity: 1; pointer-events: all; }
+        .zoom-img-container { position: relative; max-width: 95%; max-height: 95%; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; justify-content: center; }
+        .zoom-overlay.active .zoom-img-container { transform: scale(1); }
+        .zoom-img-container img { max-width: 100%; max-height: 95vh; border: 1px solid var(--brand-main); box-shadow: 0 0 80px rgba(0, 255, 136, 0.15); border-radius: 8px; display: block; }
+        .close-zoom { position: absolute; top: 20px; right: 30px; color: white; font-size: 3rem; cursor: pointer; transition: 0.3s; font-family: 'Inter'; z-index: 20001; text-shadow: 0 0 20px black; }
+        .close-zoom:hover { color: var(--brand-main); transform: scale(1.2); }
+
+        /* BENTO GRID */
+        .info-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; max-width: 1400px; margin: 0 auto 5rem auto; padding: 0 2rem; width: 100%; }
+        .grid-card { background: rgba(10, 20, 15, 0.6); border: 1px solid rgba(255,255,255,0.1); padding: 3rem; border-radius: 12px; backdrop-filter: blur(10px); transition: 0.4s; position: relative; overflow: hidden; }
+        .grid-card:hover { border-color: var(--brand-main); transform: translateY(-5px); box-shadow: 0 0 30px rgba(0, 255, 136, 0.1); }
+        .card-full { grid-column: span 12; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; }
+        
+        .btn-launch { 
+            background: linear-gradient(90deg, #00ff88, #00cc6a); 
+            color: black; padding: 1.5rem 3rem; font-family: 'Archivo Black'; font-size: 1.2rem;
+            text-decoration: none; display: inline-block; border-radius: 4px; margin-top: 2rem; 
+            transition: 0.3s; clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+        .btn-launch:hover { transform: scale(1.05); filter: brightness(1.2); letter-spacing: 2px; box-shadow: 0 0 50px rgba(0, 255, 136, 0.3); }
+
+        @media (max-width: 900px) { 
+            .simulator-container { flex-direction: column; height: 100vh; max-height: 100vh; border-radius: 0; transform: none; } 
+            .modal-overlay { padding: 0; }
+            .sim-sidebar { width: 100%; height: 20%; min-height: 150px; flex-direction: row; overflow-x: auto; padding: 1rem; border-right: none; border-bottom: 1px solid var(--border); }
+            .sim-logo { display: none; }
+            .sim-menu-label { display: none; }
+            .sim-nav-item { white-space: nowrap; flex: none; }
+            .sim-main { flex-direction: column; height: 80%; } 
+            .sim-screen-area { flex: 1.5; padding: 1rem; }
+            .sim-info-area { flex: 1; padding: 1.5rem; overflow-y: auto; }
+            .sim-title { font-size: 1.5rem; }
+            .project-title { font-size: 3.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="neural-canvas"></canvas>
+    <div class="scanline"></div>
+    <div class="vignette"></div>
+    <div class="cursor-dot"></div>
+    <div class="cursor-ring"></div>
+
+    <div class="zoom-overlay" id="zoom-modal" onclick="closeZoom()">
+        <span class="close-zoom" onclick="closeZoom()">&times;</span>
+        <div class="zoom-img-container" onclick="event.stopPropagation()">
+            <img id="zoom-img-target" src="" alt="Zoom Preview">
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="simulator-modal">
+        <div class="simulator-container">
+            <div class="close-sim" onclick="closeSim()"><i class="fas fa-times"></i></div>
+            
+            <aside class="sim-sidebar">
+                <div class="sim-logo">ALEMBRAEU<br><span style="font-size: 0.7rem; font-family: 'Fira Code'; color: var(--brand-main);">V1.2.0</span></div>
+                
+                <div class="sim-menu-label">Menu</div>
+                <div class="sim-nav-item active" onclick="switchSim('create', this)">
+                    <i class="fas fa-plus-circle"></i> Criar Lembrete
+                </div>
+                <div class="sim-nav-item" onclick="switchSim('config', this)">
+                    <i class="fas fa-sliders-h"></i> Configurações
+                </div>
+            </aside>
+
+            <main class="sim-main">
+                <section class="sim-screen-area">
+                    <img id="sim-img" src="assets/alembraeu-lembretes.png" alt="AlembraEu Display" onclick="openZoom(this.src)">
+                    <div style="position: absolute; bottom: 10px; right: 10px; color: rgba(255,255,255,0.3); font-family: 'Fira Code'; font-size: 0.7rem;">
+                        <i class="fas fa-search-plus"></i> CLIQUE PARA AMPLIAR
+                    </div>
+                </section>
+                
+                <section class="sim-info-area">
+                    <h2 id="sim-title" class="sim-title">Criar Lembrete</h2>
+                    <p id="sim-desc" class="sim-desc">
+                        Defina o 'O Quê', 'Quando' e 'Onde'. Interface simples para agendar notificações únicas ou recorrentes. O sistema se encarrega de disparar no momento exato.
+                    </p>
+                    <div id="sim-hint" class="sim-hint">
+                        > DICA: Utilize templates pré-configurados para agilizar o cadastro de avisos repetitivos.
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <nav class="nav-bar">
+            <a href="index.html" class="back-btn"><i class="fas fa-chevron-left"></i> HUB PRINCIPAL</a>
+            <div style="font-family: 'Fira Code'; color: #444; font-size: 0.8rem; display: flex; align-items: center; gap: 10px;">
+                <span style="width: 8px; height: 8px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 10px #00ff88;"></span>
+                STATUS: ACTIVE
+            </div>
+        </nav>
+
+        <header class="project-header">
+            <div class="project-typewriter" style="margin-bottom: 20px;">/// ELECTRON_NOTIFICATION_HUB</div>
+            <h1 class="project-title">ALEMBRAEU</h1>
+            <p style="color: #888; max-width: 600px; margin: 0 auto; line-height: 1.6;">
+                O sistema de notificação que você precisava. Centralize seus lembretes e dispare alertas via WhatsApp ou telegram diretamente do seu desktop.
+            </p>
+        </header>
+
+        <section class="info-grid">
+            <div class="grid-card card-full">
+                <div style="font-size: 4rem; color: var(--brand-main); margin-bottom: 1rem;">
+                    <i class="fab fa-whatsapp"></i>
+                </div>
+                <h2 class="card-title" style="font-family: 'Archivo Black'; font-size: 2rem; color: white;">SIMULADOR INTERATIVO</h2>
+                <p style="color: #aaa; max-width: 700px; margin-bottom: 1rem;">
+                    Navegue pela interface do AlembraEu. Veja como é fácil configurar e gerenciar seus lembretes em um ambiente unificado.
+                </p>
+                <a href="#" class="btn-launch" onclick="openSim()">ABRIR SISTEMA</a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // --- 1. DADOS DO SIMULADOR (ALEMBRAEU) ---
+        const simData = {
+            'create': { 
+                title: "Criar Lembrete", 
+                desc: "Defina o 'O Quê', 'Quando' e 'Onde'. Interface simples para agendar notificações únicas ou recorrentes. O sistema se encarrega de disparar no momento exato.", 
+                img: "assets/alembraeu-lembretes.png" 
+            },
+            'config': { 
+                title: "Configurações", 
+                desc: "Central de conexões. Gerencie credenciais SMTP para emails e escaneie o QR Code para conectar a API do WhatsApp (via Baileys).", 
+                img: "assets/alembraeu-config.png" 
+            }
+        };
+
+        // --- 2. NAVEGAÇÃO DO SIMULADOR ---
+        function switchSim(key, el) {
+            const data = simData[key];
+            document.querySelectorAll('.sim-nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+
+            const img = document.getElementById('sim-img');
+            const title = document.getElementById('sim-title');
+            const desc = document.getElementById('sim-desc');
+
+            img.style.opacity = 0;
+            img.style.transform = "scale(0.95)";
+            
+            setTimeout(() => {
+                img.src = data.img || 'https://via.placeholder.com/800x500/051a0f/00ff88?text=ALEMBRAEU+MODULE'; 
+                title.innerText = data.title;
+                desc.innerText = data.desc;
+                img.style.opacity = 1;
+                img.style.transform = "scale(1)";
+            }, 300);
+        }
+
+        function openSim() { document.getElementById('simulator-modal').classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function closeSim() { document.getElementById('simulator-modal').classList.remove('active'); document.body.style.overflow = 'auto'; }
+
+        // --- 3. ZOOM ---
+        const zoomModal = document.getElementById('zoom-modal');
+        const zoomTarget = document.getElementById('zoom-img-target');
+        function openZoom(src) { zoomTarget.src = src; zoomModal.classList.add('active'); document.body.style.overflow = 'hidden'; }
+        function closeZoom() { zoomModal.classList.remove('active'); if(!document.getElementById('simulator-modal').classList.contains('active')) document.body.style.overflow = 'auto'; }
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeZoom(); closeSim(); } });
+
+        // --- 4. ENGINE GRÁFICA (GREEN EDITION) ---
+        const canvas = document.getElementById('neural-canvas'); const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+        
+        class Particle {
+            constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.size = Math.random() * 2; }
+            update() { this.x += this.vx; this.y += this.vy; if(this.x < 0 || this.x > width) this.vx *= -1; if(this.y < 0 || this.y > height) this.vy *= -1; }
+            draw() { ctx.fillStyle = "rgba(0, 255, 136, 0.3)"; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+        }
+        for(let i=0; i<60; i++) particles.push(new Particle());
+        
+        let mouseX = 0, mouseY = 0;
+        window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+        
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => {
+                p.update(); p.draw();
+                const dx = mouseX - p.x; const dy = mouseY - p.y; const dist = Math.sqrt(dx*dx + dy*dy);
+                if(dist < 200) { 
+                    // GREEN COLOR LINK
+                    ctx.strokeStyle = `rgba(0, 255, 136, ${1 - dist/200})`; 
+                    ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouseX, mouseY); ctx.stroke(); 
+                }
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- 5. CURSOR ---
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorRing = document.querySelector('.cursor-ring');
+        window.addEventListener('mousemove', (e) => {
+            cursorDot.style.left = `${e.clientX}px`; cursorDot.style.top = `${e.clientY}px`;
+            cursorRing.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 500, fill: "forwards" });
+        });
+        const interactives = document.querySelectorAll('a, button, .sim-nav-item, .btn-launch, .close-sim, .close-zoom, img');
+        interactives.forEach(el => {
+            el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+            el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+        });
+    </script>
+</body>
+</html>
